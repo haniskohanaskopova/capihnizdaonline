@@ -649,8 +649,8 @@
   </header>
 
   <!-- SEASON BANNER -->
-  <div class="season-banner">
-    🐣 <strong>Sledujte čapí hnízda živě – začala hnízdní sezóna 2026!<br>Pro jistotu videa aktivujte postupně, ať si YT nemyslí, že jste robot ;)<br>Aktualizace zpravidla každý druhý den, tímto děkuji za vaše zprávičky.<br>Předem děkuji za kontrolu a korekci jmen čápů na hnízdech.</strong>
+  <div class="season-banner" id="seasonBanner">
+    <strong>Načítám...</strong>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -664,9 +664,7 @@
     </div>
 
     <!-- NOTE -->
-    <div class="planned-note">
-      <strong>Poděkování na rádiu Blaník – <a href="https://youtu.be/xqBy-05snaM" target="_blank" rel="noopener" style="color: var(--blue); text-decoration: underline;">díky kluci</a> ;)</strong>
-    </div>
+    <div class="planned-note" id="plannedNote"></div>
 
     <!-- CONTACT FORM -->
     <div class="contact-section" id="kontakt">
@@ -697,12 +695,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <div>
-      Projekt <strong>Čapí hnízda online</strong> · Sezóna 2026<br>
-      Vytvořila <span class="footer-author"><a href="https://www.instagram.com/tojekajinamamka/">@tojekajinamamka</a></span><br>
-      Videa jsou přehrávána prostřednictvím veřejného přehrávače YouTube.<br>
-      Tento web není spojen se společností YouTube ani Google.
-    </div>
+    <div id="footerText"></div>
     <div class="legal-links">
       <a href="#" onclick="openModal('privacy'); return false;">Zásady ochrany osobních údajů</a>
       <a href="#" onclick="openModal('terms'); return false;">Podmínky užití</a>
@@ -857,84 +850,102 @@
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
-  <div class="modal-overlay" id="modal-admin">
-    <div class="modal-content" style="max-width:950px;">
-      <button class="modal-close" onclick="closeModal('admin')">&times;</button>
-      <div id="adminLogin">
-        <h2>Admin přihlášení</h2>
-        <p style="margin:1rem 0;color:var(--text-light);font-size:0.9rem;">Zadej heslo pro přístup k editaci hnízd.</p>
-        <input type="password" id="adminPass" placeholder="heslo" style="font-family:Tahoma,sans-serif;font-size:0.95rem;padding:0.5rem 0.8rem;border:1px solid #d5e3f0;border-radius:6px;width:100%;max-width:300px;">
-        <br><br>
-        <button onclick="loginAdmin()" style="font-family:Tahoma,sans-serif;font-size:0.9rem;padding:0.5rem 1.2rem;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;">Přihlásit</button>
-        <p id="adminError" style="color:#c0392b;margin-top:0.8rem;font-size:0.85rem;display:none;">Špatné heslo.</p>
+  <!-- ADMIN PAGE -->
+  <div id="adminPage" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#e8f4fd 0%,#d0e8f7 50%,#e0eef8 100%);z-index:9999;overflow-y:auto;">
+    <div style="background:var(--navy);color:white;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+      <h1 style="font-size:1.1rem;font-weight:700;">🐣 Admin – Čapí hnízda online</h1>
+      <button onclick="closeAdmin()" style="background:rgba(255,255,255,0.15);color:white;border:none;padding:0.4rem 1rem;border-radius:6px;cursor:pointer;font-family:Tahoma,sans-serif;font-size:0.85rem;">✕ Zavřít</button>
+    </div>
+
+    <div id="adminLogin" style="max-width:400px;margin:4rem auto;background:white;padding:2rem;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+      <h2 style="color:var(--navy);margin-bottom:1rem;">Přihlášení</h2>
+      <input type="password" id="adminPass" placeholder="heslo" style="font-family:Tahoma,sans-serif;font-size:0.95rem;padding:0.5rem 0.8rem;border:1px solid #d5e3f0;border-radius:6px;width:100%;">
+      <br><br>
+      <button onclick="loginAdmin()" style="font-family:Tahoma,sans-serif;font-size:0.9rem;padding:0.5rem 1.5rem;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;width:100%;">Přihlásit</button>
+      <p id="adminError" style="color:#c0392b;margin-top:0.8rem;font-size:0.85rem;display:none;">Špatné heslo.</p>
+    </div>
+
+    <div id="adminPanel" style="display:none;max-width:1100px;margin:0 auto;padding:1.5rem;">
+      <div style="background:white;padding:0.8rem 1.5rem;border-radius:8px;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+        <span style="font-size:0.85rem;color:var(--text-light);">YouTube: <strong id="aYtCount">0</strong></span>
+        <span style="font-size:0.85rem;color:var(--text-light);">Externí: <strong id="aExtCount">0</strong></span>
+        <span style="font-size:0.85rem;color:var(--text-light);">S párem: <strong id="aPairCount">0</strong></span>
+        <span style="flex:1;"></span>
+        <button onclick="saveToGithub()" style="font-family:Tahoma,sans-serif;font-size:0.9rem;padding:0.5rem 1.5rem;background:#27ae60;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;">💾 Uložit a publikovat</button>
+        <span id="saveStatus" style="font-size:0.85rem;"></span>
       </div>
-      <div id="adminPanel" style="display:none;">
-        <h2 style="margin-bottom:0.5rem;">Správa hnízd</h2>
-        <p style="color:var(--text-light);font-size:0.85rem;margin-bottom:1rem;">
-          YouTube hnízd: <strong id="aYtCount">0</strong> &nbsp;|&nbsp;
-          Externích: <strong id="aExtCount">0</strong> &nbsp;|&nbsp;
-          S párem: <strong id="aPairCount">0</strong>
-        </p>
 
-        <div style="margin-bottom:1rem;">
-          <button class="admin-tab-btn active" onclick="switchAdminTab('yt',this)">YouTube hnízda</button>
-          <button class="admin-tab-btn" onclick="switchAdminTab('ext',this)">Další hnízda</button>
-        </div>
+      <div style="display:flex;gap:0;margin-bottom:-1px;flex-wrap:wrap;">
+        <button class="admin-tab-btn active" onclick="switchAdminTab('yt',this)">YouTube hnízda</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('ext',this)">Další hnízda</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('banner',this)">Horní text</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('note',this)">Poděkování</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('footer',this)">Patička</button>
+      </div>
 
+      <div style="background:white;border:1px solid #d5e3f0;border-radius:0 8px 8px 8px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+
+        <!-- YT TAB -->
         <div id="adminYt">
           <div style="overflow-x:auto;">
             <table class="admin-table">
-              <thead><tr>
-                <th style="width:40px;">#</th>
-                <th>Název</th>
-                <th>YouTube ID / URL</th>
-                <th>Čapí pár</th>
-                <th style="width:100px;">Akce</th>
-              </tr></thead>
+              <thead><tr><th style="width:40px;">#</th><th>Název</th><th>YouTube ID / URL</th><th>Čapí pár</th><th style="width:100px;">Akce</th></tr></thead>
               <tbody id="adminYtBody"></tbody>
             </table>
           </div>
-          <button onclick="addYtNest()" style="margin-top:0.8rem;font-family:Tahoma,sans-serif;font-size:0.85rem;padding:0.4rem 1rem;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;">＋ Přidat YouTube hnízdo</button>
+          <button onclick="addYtNest()" class="adm-add-btn">＋ Přidat YouTube hnízdo</button>
         </div>
 
+        <!-- EXT TAB -->
         <div id="adminExt" style="display:none;">
           <div style="overflow-x:auto;">
             <table class="admin-table">
-              <thead><tr>
-                <th style="width:40px;">#</th>
-                <th>Název</th>
-                <th>URL odkaz</th>
-                <th>Obrázek (soubor)</th>
-                <th>Čapí pár</th>
-                <th style="width:100px;">Akce</th>
-              </tr></thead>
+              <thead><tr><th style="width:40px;">#</th><th>Název</th><th>URL odkaz</th><th>Obrázek</th><th>Čapí pár</th><th style="width:100px;">Akce</th></tr></thead>
               <tbody id="adminExtBody"></tbody>
             </table>
           </div>
-          <button onclick="addExtNest()" style="margin-top:0.8rem;font-family:Tahoma,sans-serif;font-size:0.85rem;padding:0.4rem 1rem;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;">＋ Přidat externí hnízdo</button>
+          <button onclick="addExtNest()" class="adm-add-btn">＋ Přidat externí hnízdo</button>
         </div>
 
-        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #d5e3f0;">
-          <button onclick="saveToGithub()" style="font-family:Tahoma,sans-serif;font-size:0.95rem;padding:0.6rem 2rem;background:#27ae60;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;">💾 Uložit a publikovat</button>
-          <span id="saveStatus" style="margin-left:1rem;font-size:0.85rem;"></span>
+        <!-- BANNER TAB -->
+        <div id="adminBanner" style="display:none;">
+          <h3 style="color:var(--navy);margin-bottom:0.5rem;">Horní text (season banner)</h3>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Každý řádek = nový řádek na webu. Emoji a HTML jsou povoleny.</p>
+          <textarea id="adminBannerText" rows="6" style="font-family:Tahoma,sans-serif;font-size:0.9rem;width:100%;padding:0.8rem;border:1px solid #d5e3f0;border-radius:6px;resize:vertical;line-height:1.7;"></textarea>
         </div>
+
+        <!-- NOTE TAB -->
+        <div id="adminNote" style="display:none;">
+          <h3 style="color:var(--navy);margin-bottom:0.5rem;">Poděkování / poznámka</h3>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Text pod hnízdy. HTML je povoleno (odkazy atd.).</p>
+          <textarea id="adminNoteText" rows="4" style="font-family:Tahoma,sans-serif;font-size:0.9rem;width:100%;padding:0.8rem;border:1px solid #d5e3f0;border-radius:6px;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
+        <!-- FOOTER TAB -->
+        <div id="adminFooter" style="display:none;">
+          <h3 style="color:var(--navy);margin-bottom:0.5rem;">Patička webu</h3>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Každý řádek = nový řádek. HTML je povoleno.</p>
+          <textarea id="adminFooterText" rows="5" style="font-family:Tahoma,sans-serif;font-size:0.9rem;width:100%;padding:0.8rem;border:1px solid #d5e3f0;border-radius:6px;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
       </div>
     </div>
   </div>
 
   <style>
     .admin-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
-    .admin-table th { background:var(--sky,#e8f2fa); padding:0.5rem; text-align:left; font-size:0.75rem; text-transform:uppercase; color:var(--navy,#1e3a5f); border-bottom:2px solid #d5e3f0; }
-    .admin-table td { padding:0.4rem; border-bottom:1px solid #eee; vertical-align:middle; }
+    .admin-table th { background:var(--sky,#e8f2fa); padding:0.5rem 0.6rem; text-align:left; font-size:0.75rem; text-transform:uppercase; color:var(--navy,#1e3a5f); border-bottom:2px solid #d5e3f0; }
+    .admin-table td { padding:0.35rem 0.4rem; border-bottom:1px solid #eee; vertical-align:middle; }
     .admin-table input[type="text"] { font-family:Tahoma,sans-serif; font-size:0.85rem; width:100%; padding:0.3rem 0.4rem; border:1px solid #d5e3f0; border-radius:4px; }
-    .admin-table input[type="text"]:focus { outline:none; border-color:var(--blue,#3a7ebf); }
-    .admin-tab-btn { font-family:Tahoma,sans-serif; font-size:0.85rem; padding:0.4rem 1rem; background:white; border:1px solid #d5e3f0; border-radius:6px 6px 0 0; cursor:pointer; color:var(--text-light,#5a6d82); font-weight:700; }
-    .admin-tab-btn.active { background:var(--sky,#e8f2fa); color:var(--navy,#1e3a5f); border-bottom-color:var(--sky,#e8f2fa); }
+    .admin-table input[type="text"]:focus { outline:none; border-color:var(--blue,#3a7ebf); box-shadow:0 0 0 2px rgba(58,126,191,0.12); }
+    .admin-tab-btn { font-family:Tahoma,sans-serif; font-size:0.85rem; padding:0.5rem 1.2rem; background:white; border:1px solid #d5e3f0; border-bottom:none; border-radius:6px 6px 0 0; cursor:pointer; color:var(--text-light,#5a6d82); font-weight:700; }
+    .admin-tab-btn.active { background:white; color:var(--navy,#1e3a5f); border-bottom:1px solid white; position:relative; z-index:1; }
+    .admin-tab-btn:hover:not(.active) { background:#f0f6fc; }
     .adm-move { font-size:0.6rem; padding:0.1rem 0.3rem; background:#e8f2fa; border:1px solid #d5e3f0; border-radius:3px; cursor:pointer; }
     .adm-move:hover { background:#d0e4f5; }
     .adm-del { font-size:0.7rem; padding:0.15rem 0.4rem; background:#fdecea; border:1px solid #f5c6cb; border-radius:3px; cursor:pointer; color:#c0392b; font-weight:700; }
     .adm-del:hover { background:#c0392b; color:white; }
+    .adm-add-btn { margin-top:0.8rem; font-family:Tahoma,sans-serif; font-size:0.85rem; padding:0.4rem 1rem; background:var(--blue); color:white; border:none; border-radius:6px; cursor:pointer; }
   </style>
 
   <script>
@@ -943,7 +954,7 @@
     var GITHUB_FILE = 'nests.json';
     var ADMIN_PASS = 'jaktobylosbetynkouabukackem';
 
-    var nestsData = { youtube: [], external: [] };
+    var nestsData = { youtube: [], external: [], settings: { bannerText:'', noteText:'', footerText:'' } };
     var cookiesAccepted = false;
     try { cookiesAccepted = localStorage.getItem('yt-cookies') === 'accepted'; } catch(e) {}
 
@@ -952,131 +963,94 @@
         .then(function(r) { return r.json(); })
         .then(function(data) {
           nestsData = data;
-          renderNests();
-          renderExtNests();
+          if (!nestsData.settings) nestsData.settings = {};
+          renderNests(); renderExtNests(); renderTexts();
         })
         .catch(function(err) { console.error('Chyba načítání nests.json:', err); });
     }
 
-    function showCookieBanner() {
-      try {
-        if (!localStorage.getItem('yt-cookies')) { document.getElementById('cookieBanner').classList.add('show'); }
-      } catch(e) { document.getElementById('cookieBanner').classList.add('show'); }
+    function renderTexts() {
+      var s = nestsData.settings || {};
+      var banner = document.getElementById('seasonBanner');
+      if (s.bannerText) banner.innerHTML = '<strong>' + s.bannerText.replace(/\n/g, '<br>') + '</strong>';
+      var note = document.getElementById('plannedNote');
+      if (s.noteText) note.innerHTML = '<strong>' + s.noteText + '</strong>';
+      var footer = document.getElementById('footerText');
+      if (s.footerText) footer.innerHTML = s.footerText.replace(/\n/g, '<br>');
     }
 
+    function showCookieBanner() {
+      try { if (!localStorage.getItem('yt-cookies')) document.getElementById('cookieBanner').classList.add('show'); }
+      catch(e) { document.getElementById('cookieBanner').classList.add('show'); }
+    }
     function acceptCookies() {
       try { localStorage.setItem('yt-cookies', 'accepted'); } catch(e) {}
-      cookiesAccepted = true;
-      document.getElementById('cookieBanner').classList.remove('show');
-      renderNests();
+      cookiesAccepted = true; document.getElementById('cookieBanner').classList.remove('show'); renderNests();
     }
-
     function declineCookies() {
       try { localStorage.setItem('yt-cookies', 'declined'); } catch(e) {}
-      cookiesAccepted = false;
-      document.getElementById('cookieBanner').classList.remove('show');
+      cookiesAccepted = false; document.getElementById('cookieBanner').classList.remove('show');
     }
 
     function renderNests() {
-      var grid = document.getElementById('nestGrid');
-      grid.innerHTML = '';
+      var grid = document.getElementById('nestGrid'); grid.innerHTML = '';
       var nests = nestsData.youtube || [];
       for (var i = 0; i < nests.length; i++) {
-        var nest = nests[i];
-        var card = document.createElement('div');
-        card.className = 'nest-card';
+        var nest = nests[i], card = document.createElement('div'); card.className = 'nest-card';
         var thumbUrl = 'https://img.youtube.com/vi/' + nest.id + '/hqdefault.jpg';
-        var consentNote = cookiesAccepted
-          ? 'Kliknutím spustíte živý přenos'
-          : 'Kliknutím načtete video z YouTube a souhlasíte s cookies YouTube/Google';
+        var cn = cookiesAccepted ? 'Kliknutím spustíte živý přenos' : 'Kliknutím načtete video z YouTube a souhlasíte s cookies YouTube/Google';
         var videoHTML = '<div class="video-placeholder" data-videoid="' + nest.id + '" onclick="onPlaceholderClick(this)">' +
-          '<img class="thumb-bg" src="' + thumbUrl + '" alt="' + nest.name + '">' +
-          '<div class="thumb-overlay"></div>' +
-          '<div class="play-btn"></div>' +
-          '<div class="consent-text">' + consentNote + '</div></div>';
+          '<img class="thumb-bg" src="' + thumbUrl + '" alt="' + nest.name + '"><div class="thumb-overlay"></div><div class="play-btn"></div><div class="consent-text">' + cn + '</div></div>';
         var pairHTML = nest.pair ? '<div class="nest-pair">' + nest.pair + '</div>' : '';
-        card.innerHTML = '<div class="video-wrapper">' + videoHTML + '</div>' +
-          '<div class="nest-info"><img class="location-icon" src="icon.jpg" alt="">' +
-          '<h2>' + nest.name + '</h2>' +
-          '<a class="yt-link" href="https://www.youtube.com/watch?v=' + nest.id + '" target="_blank" rel="noopener">↗ YouTube</a></div>' + pairHTML;
+        card.innerHTML = '<div class="video-wrapper">' + videoHTML + '</div><div class="nest-info"><img class="location-icon" src="icon.jpg" alt=""><h2>' + nest.name + '</h2><a class="yt-link" href="https://www.youtube.com/watch?v=' + nest.id + '" target="_blank" rel="noopener">↗ YouTube</a></div>' + pairHTML;
         grid.appendChild(card);
       }
     }
 
     function renderExtNests() {
-      var grid = document.getElementById('extGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
+      var grid = document.getElementById('extGrid'); if (!grid) return; grid.innerHTML = '';
       var exts = nestsData.external || [];
       for (var i = 0; i < exts.length; i++) {
-        var ext = exts[i];
-        var pairHTML = ext.pair ? '<div class="nest-pair">' + ext.pair + '</div>' : '';
-        grid.insertAdjacentHTML('beforeend',
-          '<div class="ext-card">' +
-          '<a class="ext-img-link" href="' + ext.url + '" target="_blank" rel="noopener">' +
-          '<img class="ext-thumb" src="' + ext.image + '" alt="Čapí hnízdo ' + ext.name + '"></a>' +
-          '<div class="nest-info"><img class="location-icon" src="icon.jpg" alt="">' +
-          '<h2>' + ext.name + '</h2>' +
-          '<a class="yt-link" href="' + ext.url + '" target="_blank" rel="noopener">↗ Odkaz</a></div>' +
-          pairHTML + '</div>');
+        var ext = exts[i], pH = ext.pair ? '<div class="nest-pair">' + ext.pair + '</div>' : '';
+        grid.insertAdjacentHTML('beforeend', '<div class="ext-card"><a class="ext-img-link" href="' + ext.url + '" target="_blank" rel="noopener"><img class="ext-thumb" src="' + ext.image + '" alt="Čapí hnízdo ' + ext.name + '"></a><div class="nest-info"><img class="location-icon" src="icon.jpg" alt=""><h2>' + ext.name + '</h2><a class="yt-link" href="' + ext.url + '" target="_blank" rel="noopener">↗ Odkaz</a></div>' + pH + '</div>');
       }
     }
 
     function onPlaceholderClick(el) {
-      if (!cookiesAccepted) {
-        try { localStorage.setItem('yt-cookies', 'accepted'); } catch(e) {}
-        cookiesAccepted = true;
-        document.getElementById('cookieBanner').classList.remove('show');
-      }
-      var videoId = el.getAttribute('data-videoid');
-      var wrapper = el.parentElement;
-      var iframe = document.createElement('iframe');
-      iframe.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?autoplay=1';
-      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-      iframe.allowFullscreen = true;
-      iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
-      wrapper.innerHTML = '';
-      wrapper.appendChild(iframe);
+      if (!cookiesAccepted) { try { localStorage.setItem('yt-cookies', 'accepted'); } catch(e) {} cookiesAccepted = true; document.getElementById('cookieBanner').classList.remove('show'); }
+      var vid = el.getAttribute('data-videoid'), w = el.parentElement, f = document.createElement('iframe');
+      f.src = 'https://www.youtube-nocookie.com/embed/' + vid + '?autoplay=1';
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      f.allowFullscreen = true; f.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+      w.innerHTML = ''; w.appendChild(f);
     }
 
-    function openModal(name) {
-      document.getElementById('modal-' + name).classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeModal(name) {
-      document.getElementById('modal-' + name).classList.remove('active');
-      document.body.style.overflow = '';
-    }
+    function openModal(name) { document.getElementById('modal-' + name).classList.add('active'); document.body.style.overflow = 'hidden'; }
+    function closeModal(name) { document.getElementById('modal-' + name).classList.remove('active'); document.body.style.overflow = ''; }
     function switchLang(modal, lang, btn) {
-      var buttons = btn.parentElement.querySelectorAll('.lang-btn');
-      for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
-      btn.classList.add('active');
-      var parent = document.getElementById('modal-' + modal).querySelector('.modal-content');
-      var contents = parent.querySelectorAll('.lang-content');
-      for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+      var bs = btn.parentElement.querySelectorAll('.lang-btn'); for (var i=0;i<bs.length;i++) bs[i].classList.remove('active'); btn.classList.add('active');
+      var cs = document.getElementById('modal-' + modal).querySelector('.modal-content').querySelectorAll('.lang-content'); for (var i=0;i<cs.length;i++) cs[i].classList.remove('active');
       document.getElementById(modal + '-' + lang).classList.add('active');
     }
     var overlays = document.querySelectorAll('.modal-overlay');
-    for (var i = 0; i < overlays.length; i++) {
-      overlays[i].addEventListener('click', function(e) {
-        if (e.target === this) { this.classList.remove('active'); document.body.style.overflow = ''; }
-      });
-    }
+    for (var i=0;i<overlays.length;i++) overlays[i].addEventListener('click', function(e) { if (e.target===this) { this.classList.remove('active'); document.body.style.overflow=''; } });
 
     // ===== ADMIN =====
-    function showAdmin() { openModal('admin'); }
+    function showAdmin() { document.getElementById('adminPage').style.display = 'block'; document.body.style.overflow = 'hidden'; }
+    function closeAdmin() { document.getElementById('adminPage').style.display = 'none'; document.body.style.overflow = ''; }
 
     function loginAdmin() {
       if (document.getElementById('adminPass').value === ADMIN_PASS) {
         document.getElementById('adminLogin').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
         renderAdminYt(); renderAdminExt(); updateAdminStats();
-        try { var t = localStorage.getItem('gh-token'); if(t) document.getElementById('ghToken') && (document.getElementById('ghToken').value=t); } catch(e){}
+        var s = nestsData.settings || {};
+        document.getElementById('adminBannerText').value = (s.bannerText || '').replace(/\n/g, '\n');
+        document.getElementById('adminNoteText').value = s.noteText || '';
+        document.getElementById('adminFooterText').value = (s.footerText || '').replace(/\n/g, '\n');
       } else { document.getElementById('adminError').style.display = 'block'; }
     }
-    document.addEventListener('keydown', function(e) {
-      if (e.key==='Enter' && document.activeElement===document.getElementById('adminPass')) loginAdmin();
-    });
+    document.addEventListener('keydown', function(e) { if (e.key==='Enter' && document.activeElement===document.getElementById('adminPass')) loginAdmin(); });
 
     function updateAdminStats() {
       var yt=nestsData.youtube||[], ext=nestsData.external||[], p=0;
@@ -1087,12 +1061,11 @@
       document.getElementById('aPairCount').textContent=p;
     }
 
-    function switchAdminTab(tab,btn) {
-      var btns=document.querySelectorAll('.admin-tab-btn');
-      for(var i=0;i<btns.length;i++) btns[i].classList.remove('active');
-      btn.classList.add('active');
-      document.getElementById('adminYt').style.display=tab==='yt'?'block':'none';
-      document.getElementById('adminExt').style.display=tab==='ext'?'block':'none';
+    var adminTabs = ['yt','ext','banner','note','footer'];
+    var adminTabIds = { yt:'adminYt', ext:'adminExt', banner:'adminBanner', note:'adminNote', footer:'adminFooter' };
+    function switchAdminTab(tab, btn) {
+      var bs=document.querySelectorAll('.admin-tab-btn'); for(var i=0;i<bs.length;i++) bs[i].classList.remove('active'); btn.classList.add('active');
+      for(var k in adminTabIds) document.getElementById(adminTabIds[k]).style.display = k===tab ? 'block' : 'none';
     }
 
     function renderAdminYt() {
@@ -1104,23 +1077,15 @@
           '<td><input type="text" value="'+esc(n.name)+'" onchange="nestsData.youtube['+i+'].name=this.value"></td>'+
           '<td><input type="text" value="'+esc(n.id)+'" onchange="updateYtId('+i+',this.value)"></td>'+
           '<td><input type="text" value="'+esc(n.pair||'')+'" onchange="nestsData.youtube['+i+'].pair=this.value||undefined" placeholder="(nepovinné)"></td>'+
-          '<td style="text-align:center;white-space:nowrap;">'+
-            '<span style="display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle;margin-right:3px;">'+
-              '<button class="adm-move" onclick="moveYt('+i+',-1)">▲</button>'+
-              '<button class="adm-move" onclick="moveYt('+i+',1)">▼</button></span>'+
+          '<td style="text-align:center;white-space:nowrap;"><span style="display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle;margin-right:3px;">'+
+            '<button class="adm-move" onclick="moveYt('+i+',-1)">▲</button><button class="adm-move" onclick="moveYt('+i+',1)">▼</button></span>'+
             '<button class="adm-del" onclick="delYt('+i+')">✕</button></td>';
         tbody.appendChild(tr);
       }
     }
-
-    function updateYtId(i,val) {
-      val=val.trim();
-      var m=val.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-      if(m) val=m[1];
-      nestsData.youtube[i].id=val;
-    }
+    function updateYtId(i,val) { val=val.trim(); var m=val.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/); if(m) val=m[1]; nestsData.youtube[i].id=val; }
     function addYtNest() { nestsData.youtube.push({id:'',name:''}); renderAdminYt(); updateAdminStats(); var tb=document.getElementById('adminYtBody'),l=tb.lastElementChild; if(l){l.scrollIntoView({behavior:'smooth',block:'center'});l.querySelector('input').focus();} }
-    function delYt(i) { var n=nestsData.youtube[i].name||'(bez názvu)'; if(confirm('Smazat hnízdo „'+n+'"?')){nestsData.youtube.splice(i,1);renderAdminYt();updateAdminStats();} }
+    function delYt(i) { var n=nestsData.youtube[i].name||'(bez názvu)'; if(confirm('Smazat „'+n+'"?')){nestsData.youtube.splice(i,1);renderAdminYt();updateAdminStats();} }
     function moveYt(i,d) { var a=nestsData.youtube,j=i+d; if(j<0||j>=a.length)return; var t=a[i];a[i]=a[j];a[j]=t; renderAdminYt(); }
 
     function renderAdminExt() {
@@ -1133,23 +1098,28 @@
           '<td><input type="text" value="'+esc(e.url)+'" onchange="nestsData.external['+i+'].url=this.value"></td>'+
           '<td><input type="text" value="'+esc(e.image)+'" onchange="nestsData.external['+i+'].image=this.value" placeholder="ext_nazev.jpg"></td>'+
           '<td><input type="text" value="'+esc(e.pair||'')+'" onchange="nestsData.external['+i+'].pair=this.value||undefined" placeholder="(nepovinné)"></td>'+
-          '<td style="text-align:center;white-space:nowrap;">'+
-            '<span style="display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle;margin-right:3px;">'+
-              '<button class="adm-move" onclick="moveExt('+i+',-1)">▲</button>'+
-              '<button class="adm-move" onclick="moveExt('+i+',1)">▼</button></span>'+
+          '<td style="text-align:center;white-space:nowrap;"><span style="display:inline-flex;flex-direction:column;gap:1px;vertical-align:middle;margin-right:3px;">'+
+            '<button class="adm-move" onclick="moveExt('+i+',-1)">▲</button><button class="adm-move" onclick="moveExt('+i+',1)">▼</button></span>'+
             '<button class="adm-del" onclick="delExt('+i+')">✕</button></td>';
         tbody.appendChild(tr);
       }
     }
     function addExtNest() { nestsData.external.push({name:'',url:'',image:''}); renderAdminExt(); updateAdminStats(); var tb=document.getElementById('adminExtBody'),l=tb.lastElementChild; if(l){l.scrollIntoView({behavior:'smooth',block:'center'});l.querySelector('input').focus();} }
-    function delExt(i) { var n=nestsData.external[i].name||'(bez názvu)'; if(confirm('Smazat hnízdo „'+n+'"?')){nestsData.external.splice(i,1);renderAdminExt();updateAdminStats();} }
+    function delExt(i) { var n=nestsData.external[i].name||'(bez názvu)'; if(confirm('Smazat „'+n+'"?')){nestsData.external.splice(i,1);renderAdminExt();updateAdminStats();} }
     function moveExt(i,d) { var a=nestsData.external,j=i+d; if(j<0||j>=a.length)return; var t=a[i];a[i]=a[j];a[j]=t; renderAdminExt(); }
 
     function saveToGithub() {
-      var token = prompt('Zadej GitHub token (ghp_...):');
+      var token; try { token = localStorage.getItem('gh-token'); } catch(e) {}
+      if (!token) token = prompt('Zadej GitHub token (ghp_...):');
       if (!token || !token.trim()) return;
       token = token.trim();
       try { localStorage.setItem('gh-token', token); } catch(e) {}
+
+      // Collect text fields
+      nestsData.settings = nestsData.settings || {};
+      nestsData.settings.bannerText = document.getElementById('adminBannerText').value;
+      nestsData.settings.noteText = document.getElementById('adminNoteText').value;
+      nestsData.settings.footerText = document.getElementById('adminFooterText').value;
 
       var clean = JSON.parse(JSON.stringify(nestsData));
       for(var i=0;i<clean.youtube.length;i++) { if(!clean.youtube[i].pair) delete clean.youtube[i].pair; }
@@ -1160,30 +1130,23 @@
       var status = document.getElementById('saveStatus');
       status.textContent = 'Ukládám...'; status.style.color = 'var(--blue)';
 
-      fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
-        headers: { 'Authorization': 'token ' + token }
-      })
+      fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, { headers: { 'Authorization': 'token ' + token } })
       .then(function(r) { return r.json(); })
       .then(function(data) {
         return fetch('https://api.github.com/repos/' + GITHUB_OWNER + '/' + GITHUB_REPO + '/contents/' + GITHUB_FILE, {
-          method: 'PUT',
-          headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: 'Aktualizace hnízd – ' + new Date().toLocaleString('cs-CZ'), content: base64, sha: data.sha || '' })
+          method: 'PUT', headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Aktualizace – ' + new Date().toLocaleString('cs-CZ'), content: base64, sha: data.sha || '' })
         });
       })
       .then(function(r) {
-        if (r.ok) {
-          status.textContent = '✅ Uloženo! Web se za chvíli aktualizuje.'; status.style.color = '#27ae60';
-          renderNests(); renderExtNests();
-        } else { return r.json().then(function(err) { throw new Error(err.message); }); }
+        if (r.ok) { status.textContent = '✅ Uloženo! Web se za chvíli aktualizuje.'; status.style.color = '#27ae60'; renderNests(); renderExtNests(); renderTexts(); }
+        else { return r.json().then(function(err) { throw new Error(err.message); }); }
       })
       .catch(function(err) { status.textContent = '❌ Chyba: ' + err.message; status.style.color = '#c0392b'; });
     }
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    loadData();
-    showCookieBanner();
+    loadData(); showCookieBanner();
   </script>
 
 </body>

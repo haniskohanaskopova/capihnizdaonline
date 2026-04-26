@@ -1,4 +1,9 @@
 {
+  "settings": {
+    "bannerText": "🐣 Sledujte čapí hnízda živě – začala hnízdní sezóna 2026!\nPro jistotu videa aktivujte postupně, ať si YT nemyslí, že jste robot ;)\nAktualizace zpravidla každý druhý den, tímto děkuji za vaše zprávičky.\nPředem děkuji za kontrolu a korekci jmen čápů na hnízdech.",
+    "noteText": "Poděkování na rádiu Blaník – <a href=\"https://youtu.be/xqBy-05snaM\" target=\"_blank\" rel=\"noopener\" style=\"color: var(--blue); text-decoration: underline;\">díky kluci</a> ;)",
+    "footerText": "Projekt <strong>Čapí hnízda online</strong> · Sezóna 2026\nVytvořila <span class=\"footer-author\"><a href=\"https://www.instagram.com/tojekajinamamka/\">@tojekajinamamka</a></span>\nVidea jsou přehrávána prostřednictvím veřejného přehrávače YouTube.\nTento web není spojen se společností YouTube ani Google."
+  },
   "youtube": [
     { "id": "9yUkeT8lCKo", "name": "Mladé Buky", "pair": "Betynka a Bukáček" },
     { "id": "ABJTbc2tOc4", "name": "Bohuslavice", "pair": "Bohunka a Bohdan" },
