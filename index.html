@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Čapí hnízda online | Živé přenosy z vybraných čapích hnízd v ČR</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="description" content="Sledujte živě čapí hnízda na jednom místě. Živé YouTube přenosy z hnízdní sezóny v České republice.">
+  <style>
+    :root {
+      --sky: #e8f2fa;
+      --sky-deep: #d0e4f5;
+      --blue: #3a7ebf;
+      --blue-dark: #2c6090;
+      --blue-light: #5a9fd4;
+      --blue-pale: #f0f6fc;
+      --navy: #1e3a5f;
+      --navy-light: #2d5480;
+      --warm: #8b6f47;
+      --gold: #c8a951;
+      --gold-light: #fdf6e3;
+      --red-soft: #c0584a;
+      --shadow: rgba(30, 58, 95, 0.1);
+      --text: #2a3a4e;
+      --text-light: #5a6d82;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Tahoma, Geneva, sans-serif;
+      background: var(--sky);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* === HEADER WITH COLLAGE === */
+    header {
+      position: relative;
+      text-align: center;
+      overflow: hidden;
+      background: var(--navy);
+    }
+
+    .header-collage {
+      display: block;
+      width: 100%;
+      height: auto;
+      opacity: 0.8;
+    }
+
+    .header-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: linear-gradient(to bottom, rgba(30,58,95,0.1) 0%, rgba(30,58,95,0.25) 100%);
+    }
+
+    header h1 {
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 3px 20px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5);
+      margin-bottom: 0.3rem;
+    }
+
+    header h1 span {
+      color: #7ec8f0;
+    }
+
+    header p.subtitle {
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: rgba(255,255,255,0.9);
+      max-width: 600px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* === SEASON BANNER === */
+    .season-banner {
+      background: var(--sky-deep);
+      border-bottom: 2px solid var(--blue-light);
+      text-align: center;
+      padding: 0.7rem 1rem;
+      font-size: 0.9rem;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+
+    .season-banner strong { color: var(--blue-dark); }
+
+    /* === COOKIE CONSENT === */
+    .cookie-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(30, 58, 95, 0.97);
+      color: white;
+      padding: 1.2rem 1.5rem;
+      z-index: 1000;
+      display: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .cookie-banner.show { display: block; }
+
+    .cookie-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .cookie-text {
+      flex: 1;
+      min-width: 250px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .cookie-text a { color: #7ec8f0; text-decoration: underline; }
+
+    .cookie-buttons { display: flex; gap: 0.6rem; flex-shrink: 0; }
+
+    .btn-accept {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: Tahoma, Geneva, sans-serif;
+      font-weight: 700;
+      transition: background 0.2s;
+    }
+
+    .btn-accept:hover { background: var(--blue-light); }
+
+    .btn-decline {
+      background: transparent;
+      color: #aac;
+      border: 1px solid #556;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-family: Tahoma, Geneva, sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-decline:hover { border-color: #99a; color: white; }
+
+    /* === MAIN GRID === */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .nest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .nest-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      animation: fadeInUp 0.5s ease forwards;
+      opacity: 0;
+      border: 1px solid rgba(58, 126, 191, 0.08);
+    }
+
+    .nest-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(30, 58, 95, 0.16);
+    }
+
+    .nest-card:nth-child(1) { animation-delay: 0.05s; }
+    .nest-card:nth-child(2) { animation-delay: 0.1s; }
+    .nest-card:nth-child(3) { animation-delay: 0.15s; }
+    .nest-card:nth-child(4) { animation-delay: 0.2s; }
+    .nest-card:nth-child(5) { animation-delay: 0.25s; }
+    .nest-card:nth-child(6) { animation-delay: 0.3s; }
+    .nest-card:nth-child(7) { animation-delay: 0.35s; }
+    .nest-card:nth-child(8) { animation-delay: 0.4s; }
+    .nest-card:nth-child(9) { animation-delay: 0.45s; }
+    .nest-card:nth-child(10) { animation-delay: 0.5s; }
+    .nest-card:nth-child(11) { animation-delay: 0.55s; }
+    .nest-card:nth-child(12) { animation-delay: 0.6s; }
+    .nest-card:nth-child(13) { animation-delay: 0.65s; }
+    .nest-card:nth-child(14) { animation-delay: 0.7s; }
+    .nest-card:nth-child(15) { animation-delay: 0.75s; }
+    .nest-card:nth-child(16) { animation-delay: 0.8s; }
+    .nest-card:nth-child(17) { animation-delay: 0.85s; }
+    .nest-card:nth-child(18) { animation-delay: 0.9s; }
+    .nest-card:nth-child(19) { animation-delay: 0.95s; }
+    .nest-card:nth-child(20) { animation-delay: 1s; }
+    .nest-card:nth-child(21) { animation-delay: 1.05s; }
+    .nest-card:nth-child(22) { animation-delay: 1.1s; }
+    .nest-card:nth-child(23) { animation-delay: 1.15s; }
+    .nest-card:nth-child(24) { animation-delay: 1.2s; }
+    .nest-card:nth-child(25) { animation-delay: 1.25s; }
+    .nest-card:nth-child(26) { animation-delay: 1.3s; }
+    .nest-card:nth-child(27) { animation-delay: 1.35s; }
+    .nest-card:nth-child(28) { animation-delay: 1.4s; }
+    .nest-card:nth-child(29) { animation-delay: 1.45s; }
+    .nest-card:nth-child(30) { animation-delay: 1.5s; }
+    .nest-card:nth-child(31) { animation-delay: 1.55s; }
+    .nest-card:nth-child(32) { animation-delay: 1.6s; }
+    .nest-card:nth-child(33) { animation-delay: 1.65s; }
+    .nest-card:nth-child(34) { animation-delay: 1.7s; }
+    .nest-card:nth-child(35) { animation-delay: 1.75s; }
+    .nest-card:nth-child(36) { animation-delay: 1.8s; }
+    .nest-card:nth-child(37) { animation-delay: 1.85s; }
+    .nest-card:nth-child(38) { animation-delay: 1.9s; }
+    .nest-card:nth-child(39) { animation-delay: 1.95s; }
+    .nest-card:nth-child(40) { animation-delay: 2s; }
+    .nest-card:nth-child(41) { animation-delay: 2.05s; }
+    .nest-card:nth-child(42) { animation-delay: 2.1s; }
+    .nest-card:nth-child(43) { animation-delay: 2.15s; }
+    .nest-card:nth-child(44) { animation-delay: 2.2s; }
+    .nest-card:nth-child(45) { animation-delay: 2.25s; }
+    .nest-card:nth-child(46) { animation-delay: 2.3s; }
+    .nest-card:nth-child(47) { animation-delay: 2.35s; }
+    .nest-card:nth-child(48) { animation-delay: 2.4s; }
+    .nest-card:nth-child(49) { animation-delay: 2.45s; }
+    .nest-card:nth-child(50) { animation-delay: 2.5s; }
+    .nest-card:nth-child(51) { animation-delay: 2.55s; }
+    .nest-card:nth-child(14) { animation-delay: 0.7s; }
+    .nest-card:nth-child(15) { animation-delay: 0.75s; }
+    .nest-card:nth-child(16) { animation-delay: 0.8s; }
+    .nest-card:nth-child(17) { animation-delay: 0.85s; }
+    .nest-card:nth-child(18) { animation-delay: 0.9s; }
+    .nest-card:nth-child(19) { animation-delay: 0.95s; }
+    .nest-card:nth-child(20) { animation-delay: 1s; }
+    .nest-card:nth-child(21) { animation-delay: 1.05s; }
+    .nest-card:nth-child(22) { animation-delay: 1.1s; }
+    .nest-card:nth-child(23) { animation-delay: 1.15s; }
+    .nest-card:nth-child(24) { animation-delay: 1.2s; }
+    .nest-card:nth-child(25) { animation-delay: 1.25s; }
+    .nest-card:nth-child(26) { animation-delay: 1.3s; }
+    .nest-card:nth-child(27) { animation-delay: 1.35s; }
+    .nest-card:nth-child(28) { animation-delay: 1.4s; }
+    .nest-card:nth-child(29) { animation-delay: 1.45s; }
+    .nest-card:nth-child(30) { animation-delay: 1.5s; }
+    .nest-card:nth-child(31) { animation-delay: 1.55s; }
+    .nest-card:nth-child(32) { animation-delay: 1.6s; }
+
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      background: var(--sky-deep);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .video-placeholder {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 1rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .video-placeholder .thumb-bg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-placeholder .thumb-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(30,58,95,0.15);
+      transition: background 0.3s;
+    }
+
+    .video-placeholder:hover .thumb-overlay {
+      background: rgba(30,58,95,0.05);
+    }
+
+    .video-placeholder .play-btn {
+      position: relative;
+      z-index: 1;
+      width: 64px;
+      height: 64px;
+      background: rgba(255,255,255,0.92);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .video-placeholder:hover .play-btn {
+      transform: scale(1.08);
+      background: white;
+    }
+
+    .video-placeholder .play-btn::after {
+      content: '';
+      display: block;
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 10px 0 10px 18px;
+      border-color: transparent transparent transparent var(--blue);
+      margin-left: 3px;
+    }
+
+    .video-placeholder .consent-text {
+      position: relative;
+      z-index: 1;
+      font-size: 0.72rem;
+      color: white;
+      max-width: 260px;
+      margin-top: 0.5rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+
+    .nest-info {
+      padding: 0.7rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-top: 1px solid rgba(58, 126, 191, 0.08);
+    }
+
+    .nest-info .location-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .nest-info h2 {
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .nest-info .yt-link {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--blue);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+
+    .nest-info .yt-link:hover { opacity: 1; text-decoration: underline; }
+
+    .nest-pair {
+      padding: 0 1rem 0.5rem 1rem;
+      margin-top: -0.5rem;
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: 0.95rem;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: left;
+      padding-left: calc(1rem + 22px + 0.5rem);
+    }
+
+    /* === EXTERNAL NESTS === */
+    .external-nests {
+      margin-top: 2rem;
+    }
+
+    .external-nests h3 {
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--navy);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .external-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .ext-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px var(--shadow);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      border: 1px solid rgba(58, 126, 191, 0.08);
+    }
+
+    .ext-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(30, 58, 95, 0.16);
+    }
+
+    .ext-card a.ext-img-link {
+      display: block;
+    }
+
+    .ext-card img.ext-thumb {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .ext-card .nest-info {
+      padding: 0.7rem 0.8rem;
+      border-top: 1px solid rgba(58, 126, 191, 0.08);
+    }
+
+    @media (max-width: 900px) {
+      .external-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+      .external-grid { grid-template-columns: 1fr; }
+    }
+
+    /* === PLANNED NOTE === */
+    .planned-note {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--blue-pale);
+      border-radius: 10px;
+      border: 1px dashed var(--blue-light);
+      color: var(--navy-light);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .planned-note strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+      color: var(--navy);
+    }
+
+    /* === CONTACT SECTION === */
+    .contact-section {
+      max-width: 600px;
+      margin: 2.5rem auto 0;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px var(--shadow);
+    }
+
+    .contact-section h2 {
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: 1.3rem;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .contact-section p.contact-desc {
+      font-size: 0.88rem;
+      color: var(--text-light);
+      margin-bottom: 1.2rem;
+      line-height: 1.6;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 0.3rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #c8d8e8;
+      border-radius: 8px;
+      font-family: Tahoma, Geneva, sans-serif;
+      font-size: 0.92rem;
+      color: var(--text);
+      background: var(--blue-pale);
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus { outline: none; border-color: var(--blue); }
+
+    .form-group textarea { resize: vertical; min-height: 100px; }
+
+    .btn-send {
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: Tahoma, Geneva, sans-serif;
+    }
+
+    .btn-send:hover { background: var(--blue-light); }
+
+    /* === FOOTER === */
+    footer {
+      background: var(--navy);
+      color: rgba(255,255,255,0.8);
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 3rem;
+      font-size: 0.82rem;
+      line-height: 1.8;
+    }
+
+    footer a { color: #7ec8f0; text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    footer .footer-author { font-weight: 700; color: white; }
+    footer .legal-links { margin-top: 0.6rem; }
+    footer .legal-links a { margin: 0 0.6rem; font-size: 0.78rem; opacity: 0.7; }
+    footer .legal-links a:hover { opacity: 1; }
+
+    /* === LEGAL MODALS === */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active { display: flex; }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 700px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 2rem;
+      position: relative;
+    }
+
+    .modal-content h2 {
+      font-family: Tahoma, Geneva, sans-serif;
+      color: var(--navy);
+      margin-bottom: 1rem;
+    }
+
+    .modal-content h3 { color: var(--blue); margin: 1.2rem 0 0.5rem; font-size: 0.95rem; }
+    .modal-content p, .modal-content li { font-size: 0.88rem; color: var(--text-light); line-height: 1.7; }
+    .modal-content ul { padding-left: 1.2rem; margin: 0.5rem 0; }
+
+    .modal-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      background: var(--sky);
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--navy);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    .lang-switch { display: inline-flex; gap: 0.4rem; margin-bottom: 1rem; }
+
+    .lang-btn {
+      padding: 0.3rem 0.8rem;
+      border: 1px solid var(--blue-light);
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-family: Tahoma, Geneva, sans-serif;
+      color: var(--navy);
+    }
+
+    .lang-btn.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+    .lang-content { display: none; }
+    .lang-content.active { display: block; }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .nest-grid { grid-template-columns: 1fr; }
+      .contact-section { margin: 2rem 0.5rem 0; padding: 1.5rem; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <img src="header.jpg" alt="Koláž fotografií čápů z českých hnízd" class="header-collage">
+    <div class="header-overlay">
+      <h1>Čapí hnízda <span>online</span></h1>
+      <p class="subtitle">Živé přenosy z vybraných čapích hnízd</p>
+    </div>
+  </header>
+
+  <!-- SEASON BANNER -->
+  <div class="season-banner">
+    🐣 <strong>Sledujte čapí hnízda živě – začala hnízdní sezóna 2026!<br>Pro jistotu videa aktivujte postupně, ať si YT nemyslí, že jste robot ;)<br>Aktualizace zpravidla každý druhý den, tímto děkuji za vaše zprávičky.<br>Předem děkuji za kontrolu a korekci jmen čápů na hnízdech.</strong>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <div class="nest-grid" id="nestGrid"></div>
+
+    <!-- EXTERNAL NESTS (not on YouTube) -->
+    <div class="external-nests">
+      <h3>Další čapí hnízda</h3>
+      <div class="external-grid">
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.broumov-mesto.cz/vismo/dokumenty2.asp?id_org=1276&id=4068" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_broumov.jpg" alt="Čapí hnízdo Broumov">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Broumov</h2>
+            <a class="yt-link" href="https://www.broumov-mesto.cz/vismo/dokumenty2.asp?id_org=1276&id=4068" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+          <div class="nest-pair">Maruška a Otík</div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://webkamery-krkonose.cz/kamera/50-jilemnice-ap-hnzdo" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_jilemnice.jpg" alt="Čapí hnízdo Jilemnice">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Jilemnice</h2>
+            <a class="yt-link" href="https://webkamery-krkonose.cz/kamera/50-jilemnice-ap-hnzdo" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.chobex.cz/capichocen" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_chocen.jpg" alt="Čapí hnízdo Choceň">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Choceň</h2>
+            <a class="yt-link" href="https://www.chobex.cz/capichocen" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.capihnizdo.online/capi-hnizdo-detmarovice/" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_detmarovice.jpg" alt="Čapí hnízdo Dětmarovice">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Dětmarovice</h2>
+            <a class="yt-link" href="https://www.capihnizdo.online/capi-hnizdo-detmarovice/" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.capihnizdo.online/34-2/" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_zavada.jpg" alt="Čapí hnízdo Závada">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Závada</h2>
+            <a class="yt-link" href="https://www.capihnizdo.online/34-2/" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://webkamery-krkonose.cz/kamera/41-vrchlabi-capi-hnizdo" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_vrchlabi.jpg" alt="Čapí hnízdo Vrchlabí">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Vrchlabí</h2>
+            <a class="yt-link" href="https://webkamery-krkonose.cz/kamera/41-vrchlabi-capi-hnizdo" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://capirohatec.cz/" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_rohatec.jpg" alt="Čapí hnízdo Rohatec">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Rohatec</h2>
+            <a class="yt-link" href="https://capirohatec.cz/" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.cvikov.cz/capi-ve-cvikove/ms-6761" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_cvikov.jpg" alt="Čapí hnízdo Cvikov">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Cvikov</h2>
+            <a class="yt-link" href="https://www.cvikov.cz/capi-ve-cvikove/ms-6761" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.capibzenec.cz/" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_bzenec.jpg" alt="Čapí hnízdo Bzenec">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Bzenec</h2>
+            <a class="yt-link" href="https://www.capibzenec.cz/" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+        <div class="ext-card">
+          <a class="ext-img-link" href="https://www.capitemice.cz/" target="_blank" rel="noopener">
+            <img class="ext-thumb" src="ext_temice.jpg" alt="Čapí hnízdo Těmice">
+          </a>
+          <div class="nest-info">
+            <img class="location-icon" src="icon.jpg" alt="">
+            <h2>Těmice</h2>
+            <a class="yt-link" href="https://www.capitemice.cz/" target="_blank" rel="noopener">↗ Odkaz</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTE -->
+    <div class="planned-note">
+      <strong>Poděkování na rádiu Blaník – <a href="https://youtu.be/xqBy-05snaM" target="_blank" rel="noopener" style="color: var(--blue); text-decoration: underline;">díky kluci</a> ;)</strong>
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="contact-section" id="kontakt">
+      <h2>Klidně napište...</h2>
+      <p class="contact-desc">Předem děkuji za to, když mě upozorníte na dlouhodobý nefunkční livestream.<br>Chcete přidat další hnízdo? Ráda přidám, když tomu nebude bránit nic technického.</p>
+      <form action="https://formsubmit.co/hana.skopova@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="Čapí hnízda online – nová zpráva">
+        <input type="hidden" name="_captcha" value="true">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_next" value="https://capihnizdaonline.cz/dekuji.html">
+        <input type="text" name="_honey" style="display:none">
+        <div class="form-group">
+          <label for="name">Vaše jméno</label>
+          <input type="text" id="name" name="name" placeholder="jméno" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Váš E-mail</label>
+          <input type="email" id="email" name="email" placeholder="vas@email.cz" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Vaše zpráva</label>
+          <textarea id="message" name="message" placeholder="text zprávy" required></textarea>
+        </div>
+        <button type="submit" class="btn-send">Odeslat zprávu</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      Projekt <strong>Čapí hnízda online</strong> · Sezóna 2026<br>
+      Vytvořila <span class="footer-author"><a href="https://www.instagram.com/tojekajinamamka/">@tojekajinamamka</a></span><br>
+      Videa jsou přehrávána prostřednictvím veřejného přehrávače YouTube.<br>
+      Tento web není spojen se společností YouTube ani Google.
+    </div>
+    <div class="legal-links">
+      <a href="#" onclick="openModal('privacy'); return false;">Zásady ochrany osobních údajů</a>
+      <a href="#" onclick="openModal('terms'); return false;">Podmínky užití</a>
+      <a href="#" onclick="openModal('youtube'); return false;">YouTube &amp; Copyright</a>
+    </div>
+  </footer>
+
+  <!-- COOKIE CONSENT -->
+  <div class="cookie-banner" id="cookieBanner">
+    <div class="cookie-inner">
+      <div class="cookie-text">
+        🍪 Tento web používá embedded přehrávač YouTube, který při načtení nastavuje cookies a přenáší data na servery Google.
+        Kliknutím na „Souhlasím" povolíte načtení videí.
+        <a href="#" onclick="openModal('privacy'); return false;">Více informací</a>
+      </div>
+      <div class="cookie-buttons">
+        <button class="btn-accept" onclick="acceptCookies()">Souhlasím</button>
+        <button class="btn-decline" onclick="declineCookies()">Odmítám</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIVACY POLICY MODAL -->
+  <div class="modal-overlay" id="modal-privacy">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('privacy')">&times;</button>
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="switchLang('privacy','cs',this)">Česky</button>
+        <button class="lang-btn" onclick="switchLang('privacy','en',this)">English</button>
+      </div>
+      <div class="lang-content active" id="privacy-cs">
+        <h2>Zásady ochrany osobních údajů</h2>
+        <p><em>Platné od: březen 2026</em></p>
+        <h3>1. Provozovatel</h3>
+        <p>Tento web provozuje soukromá osoba pod označením @tojekajinamamka jako nekomerční projekt.</p>
+        <h3>2. Jaké údaje shromažďujeme</h3>
+        <p>Tento web sám o sobě neshromažďuje žádné osobní údaje návštěvníků. Nepoužíváme žádné vlastní analytické nástroje, registraci ani přihlašování.</p>
+        <h3>3. Kontaktní formulář</h3>
+        <p>Pokud nám napíšete přes kontaktní formulář, zpracujeme vaše jméno, e-mail a text zprávy výhradně za účelem odpovědi na váš dotaz. Tyto údaje nebudou předány třetím stranám a budou smazány po vyřízení dotazu. Formulář zpracovává služba FormSubmit.co.</p>
+        <h3>4. YouTube embed a cookies</h3>
+        <p>Na tomto webu jsou vložena videa ze služby YouTube (provozovatel: Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irsko). Používáme režim rozšířené ochrany soukromí (youtube-nocookie.com), který omezuje sledování uživatelů. Přesto může YouTube při přehrávání videí nastavovat cookies a shromažďovat údaje o vašem zařízení. Videa se načtou pouze po vašem výslovném souhlasu.</p>
+        <p>Další informace: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Zásady ochrany soukromí Google</a>.</p>
+        <h3>5. Vaše práva</h3>
+        <p>Máte právo na přístup k údajům, jejich opravu, výmaz a omezení zpracování. Můžete také podat námitku proti zpracování. Pro uplatnění těchto práv nás kontaktujte prostřednictvím kontaktního formuláře.</p>
+        <h3>6. Cookies</h3>
+        <p>Tento web nepoužívá vlastní cookies. Cookies třetích stran (YouTube/Google) se načítají pouze s vaším souhlasem. Souhlas můžete kdykoli odvolat smazáním cookies ve svém prohlížeči.</p>
+      </div>
+      <div class="lang-content" id="privacy-en">
+        <h2>Privacy Policy</h2>
+        <p><em>Effective: March 2026</em></p>
+        <h3>1. Operator</h3>
+        <p>This website is operated by a private individual under the name @tojekajinamamka as a non-commercial project.</p>
+        <h3>2. Data we collect</h3>
+        <p>This website itself does not collect any personal data from visitors. We do not use any analytics tools, registration, or login systems.</p>
+        <h3>3. Contact form</h3>
+        <p>If you contact us through the form, we process your name, email, and message text solely for the purpose of responding to your inquiry. This data will not be shared with third parties and will be deleted after the inquiry is resolved. The form is processed by FormSubmit.co.</p>
+        <h3>4. YouTube embeds and cookies</h3>
+        <p>This website embeds videos from YouTube (operated by Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Ireland). We use the privacy-enhanced mode (youtube-nocookie.com), which limits user tracking. Nevertheless, YouTube may set cookies and collect device data during video playback. Videos are loaded only after your explicit consent.</p>
+        <p>More info: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+        <h3>5. Your rights</h3>
+        <p>You have the right to access, rectification, erasure, and restriction of processing of your data. You may also object to processing. To exercise these rights, contact us via the contact form.</p>
+        <h3>6. Cookies</h3>
+        <p>This website does not use its own cookies. Third-party cookies (YouTube/Google) are loaded only with your consent. You can withdraw consent at any time by deleting cookies in your browser.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TERMS MODAL -->
+  <div class="modal-overlay" id="modal-terms">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('terms')">&times;</button>
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="switchLang('terms','cs',this)">Česky</button>
+        <button class="lang-btn" onclick="switchLang('terms','en',this)">English</button>
+      </div>
+      <div class="lang-content active" id="terms-cs">
+        <h2>Podmínky užití</h2>
+        <p><em>Platné od: březen 2026</em></p>
+        <h3>1. Obecné</h3>
+        <p>Web „Čapí hnízda online" je nekomerční projekt, jehož cílem je zpřístupnit veřejné živé přenosy z čapích hnízd v České republice na jednom místě.</p>
+        <h3>2. Obsah</h3>
+        <p>Veškerá videa zobrazená na tomto webu jsou přehrávána prostřednictvím oficiálního veřejného přehrávače YouTube (iframe embed). Provozovatel webu není autorem ani vlastníkem těchto videí. Autorská práva k obsahu videí náleží příslušným tvůrcům a provozovatelům YouTube kanálů.</p>
+        <h3>3. Dostupnost</h3>
+        <p>Provozovatel negarantuje nepřetržitou dostupnost přenosů. Kamery mohou být mimo provoz z technických důvodů nebo mimo hnízdní sezónu.</p>
+        <h3>4. Odpovědnost</h3>
+        <p>Provozovatel nenese odpovědnost za obsah zobrazovaných videí. Přenos z přírody může zahrnovat scény, které mohou být vnímány jako nepříjemné (přirozené chování zvířat, predace, úhyn mláďat).</p>
+        <h3>5. Odkazy</h3>
+        <p>Web může obsahovat odkazy na stránky třetích stran. Za obsah na těchto stránkách odpovídají jejich provozovatelé.</p>
+      </div>
+      <div class="lang-content" id="terms-en">
+        <h2>Terms of Use</h2>
+        <p><em>Effective: March 2026</em></p>
+        <h3>1. General</h3>
+        <p>"Čapí hnízda online" is a non-commercial project that aggregates public livestreams from stork nests across the Czech Republic.</p>
+        <h3>2. Content</h3>
+        <p>All videos are played through the official YouTube player (iframe embed). The website operator is not the author or owner of these videos. Copyright belongs to the respective YouTube channel operators.</p>
+        <h3>3. Availability</h3>
+        <p>The operator does not guarantee uninterrupted availability. Cameras may be offline due to technical issues or outside the nesting season.</p>
+        <h3>4. Liability</h3>
+        <p>The operator is not responsible for video content. Nature livestreams may include scenes perceived as disturbing (natural animal behavior, predation, death of chicks).</p>
+        <h3>5. External links</h3>
+        <p>This website may contain links to third-party sites. Their operators are responsible for their content.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- YOUTUBE & COPYRIGHT MODAL -->
+  <div class="modal-overlay" id="modal-youtube">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal('youtube')">&times;</button>
+      <div class="lang-switch">
+        <button class="lang-btn active" onclick="switchLang('youtube','cs',this)">Česky</button>
+        <button class="lang-btn" onclick="switchLang('youtube','en',this)">English</button>
+      </div>
+      <div class="lang-content active" id="youtube-cs">
+        <h2>YouTube a autorská práva</h2>
+        <h3>Zobrazování videí</h3>
+        <p>Videa na tomto webu jsou zobrazována výhradně prostřednictvím oficiálního veřejného přehrávače YouTube (iframe embed), jak to umožňují <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">Podmínky služby YouTube</a>.</p>
+        <h3>Práva tvůrců</h3>
+        <p>Respektujeme autorská práva všech tvůrců. Pokud jste vlastníkem některého z uvedených kanálů a nepřejete si, aby byl váš přenos zobrazen na tomto webu, kontaktujte nás. Váš přenos bude neprodleně odstraněn.</p>
+        <h3>Zásady</h3>
+        <ul>
+          <li>Používáme výhradně oficiální YouTube embed (iframe)</li>
+          <li>Neupravujeme vzhled ani funkce přehrávače YouTube</li>
+          <li>Neblokujeme reklamy ani odkazy na YouTube</li>
+          <li>Nepoužíváme autoplay</li>
+          <li>Zobrazujeme pouze videa s povoleným vkládáním</li>
+          <li>Tento web není spojen se společnostmi YouTube, Google ani Alphabet Inc.</li>
+        </ul>
+        <h3>Použití API</h3>
+        <p>Tento web využívá služby YouTube v souladu s <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service" target="_blank" rel="noopener">YouTube API Services Terms of Service</a> a <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noopener">YouTube Developer Policies</a>.</p>
+      </div>
+      <div class="lang-content" id="youtube-en">
+        <h2>YouTube &amp; Copyright</h2>
+        <h3>Video display</h3>
+        <p>Videos are displayed exclusively through the official YouTube player (iframe embed) as permitted by the <a href="https://www.youtube.com/t/terms" target="_blank" rel="noopener">YouTube Terms of Service</a>.</p>
+        <h3>Creator rights</h3>
+        <p>We respect the copyright of all creators. If you are the owner of a listed channel and wish your stream removed, please contact us. It will be promptly removed.</p>
+        <h3>Our policies</h3>
+        <ul>
+          <li>We exclusively use the official YouTube embed (iframe)</li>
+          <li>We do not alter the YouTube player appearance or functionality</li>
+          <li>We do not block ads or links to YouTube</li>
+          <li>We do not use autoplay</li>
+          <li>We only display videos with embedding enabled</li>
+          <li>This website is not affiliated with YouTube, Google, or Alphabet Inc.</li>
+        </ul>
+        <h3>API usage</h3>
+        <p>This website uses YouTube services in accordance with the <a href="https://developers.google.com/youtube/terms/api-services-terms-of-service" target="_blank" rel="noopener">YouTube API Services Terms of Service</a> and <a href="https://developers.google.com/youtube/terms/developer-policies" target="_blank" rel="noopener">YouTube Developer Policies</a>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    var nests = [
+      { id: "9yUkeT8lCKo", name: "Mladé Buky", pair: "Betynka a Bukáček" },
+      { id: "ABJTbc2tOc4", name: "Bohuslavice", pair: "Bohunka a Bohdan" },
+      { id: "dnPinTdkuxA", name: "Trutnov", pair: "Magda a Matěj" },
+      { id: "m2EQ_lkCIGA", name: "Rudník", pair: "Poldinka a \u201ePoláček Leo\u201c" },
+      { id: "S46DdA8Mc4I", name: "Makov - loučka s hnízdem", pair: "Johanka a Lukášek a spol." },
+      { id: "SLYQKV_vgDw", name: "Makov - jezírko", pair: "Johanka a Lukášek a spol." },
+      { id: "iOSBx3yO0Cs", name: "Milín", pair: "Terezka a Florián" },
+      { id: "2qAkB9OS9II", name: "Nové Mlýny", pair: "Nověnka a Novísek" },
+      { id: "zrpeoDwjJok", name: "Slavětín", pair: "Slávinka a Sláveček" },
+      { id: "QHj3Jeet_2g", name: "Rostejn", pair: "Rostinka a Rostík" },
+      { id: "KmRIXvVr80M", name: "Rychnov nad Kněžnou", pair: "paní Čapková a pan Čapek" },
+      { id: "9K5DzV94DFA", name: "Ústí nad Orlicí", pair: "Uršulka a Uli" },
+      { id: "hCveHX7Jt74", name: "Frýdlant", pair: "Fanynka a Fred" },
+      { id: "ZGqRc8H-KPA", name: "Ronov", pair: "Roninka a Rony" },
+      { id: "LiT46QAyvss", name: "Miletín", pair: "Miluška a Milouš" },
+      { id: "toRq9fH6SIc", name: "Třebíč", pair: "Terezka a Evžen" },
+      { id: "I-aXUuIcKYI", name: "Příbor", pair: "Vanilka a Borek" },
+      { id: "5y_Smcw_m64", name: "Albrechtice", pair: "Albi a Bertík" },
+      { id: "6ZH4hW7aqz4", name: "Vamberk", pair: "Jiráskovi" },
+      { id: "gyrHO886lkc", name: "Žichlínek", pair: "Pepínci, Stázínek" },
+      { id: "tlCr5qUWsKA", name: "Libštát" },
+      { id: "XuEm-WaK9s8", name: "Sádek u Poličky", pair: "Perlička" },
+      { id: "aH0fgGWiktg", name: "Brandýs nad Orlicí", pair: "Dorotka a Ámosek" },
+      { id: "OkS-ADJ0dbk", name: "Osík", pair: "Osíčci" },
+      { id: "U_TDDANHI-Q", name: "Lípa u Havlíčkova Brodu", pair: "Lipánci" },
+      { id: "LZ1KU1V1WAI", name: "Jaroměř", pair: "Jarmilka a Jaromír" },
+      { id: "jJbGJqyRkfY", name: "Letohrad", pair: "Liduška a Ludvík" },
+      { id: "6hhRb1GTH_0", name: "Příšovice" },
+      { id: "xH9C6d6SKW0", name: "Mnichovo Hradiště" },
+      { id: "hrFELQJJy84", name: "Chvaleč" },
+      { id: "3aOigQLdtPk", name: "Nasavrky", pair: "Maruška a Maxík" },
+      { id: "ndYJYukaoHc", name: "Křemže" },
+      { id: "7PzbQiRAEV8", name: "Vyšní Lhoty" },
+      { id: "k_JIFLPrYdg", name: "Žďár u Turnova" },
+      { id: "hbtNizzqYk8", name: "Křenovice" },
+      { id: "hcBwOEJL_Uc", name: "Kamenice u Jihlavy" },
+      { id: "9njWFgn4cVU", name: "Olbramkostel u Znojma" },
+      { id: "xb-I3x-29yg", name: "Staňkov", pair: "Staňoušci" },
+      { id: "cMhPdmGSUsQ", name: "Žamberk", pair: "Žamberáčci (... a Prokop)" },
+      { id: "Crl3CJORARo", name: "Uherský Brod", pair: "Jana a Ámos" },
+      { id: "7_U6SXsCo8M", name: "Hranice na Moravě" },
+      { id: "TiYAa-rK_w0", name: "Kačice u Kladna", pair: "Dorotka a Máchal" },
+      { id: "m_zU38s2pAI", name: "Stará Vráž u Písku" },
+      { id: "9jzpJuh9Aj8", name: "Dubné u Českých Budějovic", pair: "Maruška a Hugo" },
+      { id: "JCaAjgg3OVQ", name: "Červená Voda", pair: "Mlynaříčci" },
+      { id: "mG6Tv5tJRcU", name: "Lenešice u Loun" },
+      { id: "IxQq9g5R7Xg", name: "Moravský Písek" },
+      { id: "_t_MpfLH6z8", name: "Jezvé" },
+      { id: "HzortrURnGg", name: "Přeborov" },
+      { id: "mkwaCfLsl40", name: "Cheb" },
+      { id: "VJXJd0kZELA", name: "Chýnov" }
+    ];
+
+    var cookiesAccepted = false;
+    try { cookiesAccepted = localStorage.getItem('yt-cookies') === 'accepted'; } catch(e) {}
+
+    function showCookieBanner() {
+      try {
+        if (!localStorage.getItem('yt-cookies')) {
+          document.getElementById('cookieBanner').classList.add('show');
+        }
+      } catch(e) {
+        document.getElementById('cookieBanner').classList.add('show');
+      }
+    }
+
+    function acceptCookies() {
+      try { localStorage.setItem('yt-cookies', 'accepted'); } catch(e) {}
+      cookiesAccepted = true;
+      document.getElementById('cookieBanner').classList.remove('show');
+      // Don't load all videos - just re-render with updated consent text
+      renderNests();
+    }
+
+    function declineCookies() {
+      try { localStorage.setItem('yt-cookies', 'declined'); } catch(e) {}
+      cookiesAccepted = false;
+      document.getElementById('cookieBanner').classList.remove('show');
+    }
+
+    function renderNests() {
+      var grid = document.getElementById('nestGrid');
+      grid.innerHTML = '';
+      for (var i = 0; i < nests.length; i++) {
+        var nest = nests[i];
+        var card = document.createElement('div');
+        card.className = 'nest-card';
+        // Always show thumbnail first - iframe loads only on click
+        var thumbUrl = 'https://img.youtube.com/vi/' + nest.id + '/hqdefault.jpg';
+        var consentNote = cookiesAccepted
+          ? 'Kliknutím spustíte živý přenos'
+          : 'Kliknutím načtete video z YouTube a souhlasíte s cookies YouTube/Google';
+        var videoHTML = '<div class="video-placeholder" data-videoid="' + nest.id + '" onclick="onPlaceholderClick(this)">' +
+          '<img class="thumb-bg" src="' + thumbUrl + '" alt="' + nest.name + '">' +
+          '<div class="thumb-overlay"></div>' +
+          '<div class="play-btn"></div>' +
+          '<div class="consent-text">' + consentNote + '</div>' +
+          '</div>';
+        var pairHTML = nest.pair ? '<div class="nest-pair">' + nest.pair + '</div>' : '';
+        card.innerHTML = '<div class="video-wrapper">' + videoHTML + '</div>' +
+          '<div class="nest-info">' +
+          '<img class="location-icon" src="icon.jpg" alt="">' +
+          '<h2>' + nest.name + '</h2>' +
+          '<a class="yt-link" href="https://www.youtube.com/watch?v=' + nest.id + '" target="_blank" rel="noopener">↗ YouTube</a>' +
+          '</div>' +
+          pairHTML;
+        grid.appendChild(card);
+      }
+    }
+
+    function onPlaceholderClick(el) {
+      if (!cookiesAccepted) {
+        // First click without consent - accept and play this one
+        try { localStorage.setItem('yt-cookies', 'accepted'); } catch(e) {}
+        cookiesAccepted = true;
+        document.getElementById('cookieBanner').classList.remove('show');
+      }
+      var videoId = el.getAttribute('data-videoid');
+      var wrapper = el.parentElement;
+      var iframe = document.createElement('iframe');
+      iframe.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?autoplay=1';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;border:none;';
+      wrapper.innerHTML = '';
+      wrapper.appendChild(iframe);
+    }
+
+    function openModal(name) {
+      document.getElementById('modal-' + name).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(name) {
+      document.getElementById('modal-' + name).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function switchLang(modal, lang, btn) {
+      var buttons = btn.parentElement.querySelectorAll('.lang-btn');
+      for (var i = 0; i < buttons.length; i++) buttons[i].classList.remove('active');
+      btn.classList.add('active');
+      var parent = document.getElementById('modal-' + modal).querySelector('.modal-content');
+      var contents = parent.querySelectorAll('.lang-content');
+      for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+      document.getElementById(modal + '-' + lang).classList.add('active');
+    }
+
+    var overlays = document.querySelectorAll('.modal-overlay');
+    for (var i = 0; i < overlays.length; i++) {
+      overlays[i].addEventListener('click', function(e) {
+        if (e.target === this) {
+          this.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
+
+    renderNests();
+    showCookieBanner();
+  </script>
+</body>
+</html>
