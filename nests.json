@@ -165,10 +165,6 @@
       "name": "Křenovice"
     },
     {
-      "id": "hrFELQJJy84",
-      "name": "Chvaleč"
-    },
-    {
       "id": "cMhPdmGSUsQ",
       "name": "Žamberk",
       "pair": "Žamberáčci (... a Prokop)"
@@ -176,6 +172,10 @@
     {
       "id": "mG6Tv5tJRcU",
       "name": "Lenešice u Loun"
+    },
+    {
+      "id": "hrFELQJJy84",
+      "name": "Chvaleč"
     },
     {
       "id": "hcBwOEJL_Uc",
