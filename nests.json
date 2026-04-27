@@ -144,14 +144,6 @@
       "name": "Příšovice"
     },
     {
-      "id": "xH9C6d6SKW0",
-      "name": "Mnichovo Hradiště"
-    },
-    {
-      "id": "hrFELQJJy84",
-      "name": "Chvaleč"
-    },
-    {
       "id": "3aOigQLdtPk",
       "name": "Nasavrky",
       "pair": "Maruška a Maxík"
@@ -173,8 +165,16 @@
       "name": "Křenovice"
     },
     {
+      "id": "hrFELQJJy84",
+      "name": "Chvaleč"
+    },
+    {
       "id": "hcBwOEJL_Uc",
       "name": "Kamenice u Jihlavy"
+    },
+    {
+      "id": "7_U6SXsCo8M",
+      "name": "Hranice na Moravě"
     },
     {
       "id": "9njWFgn4cVU",
@@ -196,17 +196,13 @@
       "pair": "Jana a Ámos"
     },
     {
-      "id": "7_U6SXsCo8M",
-      "name": "Hranice na Moravě"
-    },
-    {
       "id": "TiYAa-rK_w0",
       "name": "Kačice u Kladna",
       "pair": "Dorotka a Máchal"
     },
     {
-      "id": "m_zU38s2pAI",
-      "name": "Stará Vráž u Písku"
+      "id": "IxQq9g5R7Xg",
+      "name": "Moravský Písek"
     },
     {
       "id": "9jzpJuh9Aj8",
@@ -219,20 +215,20 @@
       "pair": "Mlynaříčci"
     },
     {
+      "id": "m_zU38s2pAI",
+      "name": "Stará Vráž u Písku"
+    },
+    {
+      "id": "xH9C6d6SKW0",
+      "name": "Mnichovo Hradiště"
+    },
+    {
       "id": "mG6Tv5tJRcU",
       "name": "Lenešice u Loun"
     },
     {
-      "id": "IxQq9g5R7Xg",
-      "name": "Moravský Písek"
-    },
-    {
       "id": "_t_MpfLH6z8",
       "name": "Jezvé"
-    },
-    {
-      "id": "HzortrURnGg",
-      "name": "Přeborov"
     },
     {
       "id": "mkwaCfLsl40",
