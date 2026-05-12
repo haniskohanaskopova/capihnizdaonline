@@ -126,11 +126,6 @@
       "pair": "Osíčci"
     },
     {
-      "id": "U_TDDANHI-Q",
-      "name": "Lípa u Havlíčkova Brodu",
-      "pair": "Lipánci"
-    },
-    {
       "id": "df3mG0MB4g4",
       "name": "Jaroměř",
       "pair": "Jarmilka a Jaromír"
@@ -222,6 +217,11 @@
     {
       "id": "Od4v8lRg9lU",
       "name": "Záhlinice"
+    },
+    {
+      "id": "U_TDDANHI-Q",
+      "name": "Lípa u Havlíčkova Brodu",
+      "pair": "Lipánci"
     },
     {
       "id": "m_zU38s2pAI",
