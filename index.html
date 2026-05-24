@@ -881,6 +881,7 @@
         <button class="admin-tab-btn" onclick="switchAdminTab('banner',this)">Horní text</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('note',this)">Poděkování</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('footer',this)">Patička</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('check',this)">🔍 Kontrola linků</button>
       </div>
 
       <div style="background:white;border:1px solid #d5e3f0;border-radius:0 8px 8px 8px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);">
@@ -926,6 +927,26 @@
           <h3 style="color:var(--navy);margin-bottom:0.5rem;">Patička webu</h3>
           <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Každý řádek = nový řádek. HTML je povoleno.</p>
           <textarea id="adminFooterText" rows="5" style="font-family:Tahoma,sans-serif;font-size:0.9rem;width:100%;padding:0.8rem;border:1px solid #d5e3f0;border-radius:6px;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
+        <!-- CHECK TAB -->
+        <div id="adminCheck" style="display:none;">
+          <h3 style="color:var(--navy);margin-bottom:0.5rem;">Kontrola YouTube linků</h3>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Ověří, jestli YouTube videa existují a jestli vysílají živě. Kontrola trvá asi 10–30 vteřin.</p>
+          <button onclick="checkAllLinks()" id="checkBtn" style="font-family:Tahoma,sans-serif;font-size:0.9rem;padding:0.5rem 1.5rem;background:var(--blue);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;">▶ Spustit kontrolu</button>
+          <span id="checkProgress" style="margin-left:1rem;font-size:0.85rem;color:var(--text-light);"></span>
+          <div id="checkSummary" style="margin-top:1rem;display:none;padding:0.8rem 1rem;background:var(--sky,#e8f2fa);border-radius:6px;font-size:0.85rem;"></div>
+          <div style="overflow-x:auto;margin-top:1rem;">
+            <table class="admin-table" id="checkTable" style="display:none;">
+              <thead><tr>
+                <th style="width:40px;">#</th>
+                <th>Název</th>
+                <th>YouTube ID</th>
+                <th style="width:120px;">Stav</th>
+              </tr></thead>
+              <tbody id="checkBody"></tbody>
+            </table>
+          </div>
         </div>
 
       </div>
@@ -1062,7 +1083,7 @@
     }
 
     var adminTabs = ['yt','ext','banner','note','footer'];
-    var adminTabIds = { yt:'adminYt', ext:'adminExt', banner:'adminBanner', note:'adminNote', footer:'adminFooter' };
+    var adminTabIds = { yt:'adminYt', ext:'adminExt', banner:'adminBanner', note:'adminNote', footer:'adminFooter', check:'adminCheck' };
     function switchAdminTab(tab, btn) {
       var bs=document.querySelectorAll('.admin-tab-btn'); for(var i=0;i<bs.length;i++) bs[i].classList.remove('active'); btn.classList.add('active');
       for(var k in adminTabIds) document.getElementById(adminTabIds[k]).style.display = k===tab ? 'block' : 'none';
@@ -1146,6 +1167,93 @@
     }
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ===== LINK CHECK =====
+    function checkAllLinks() {
+      var nests = nestsData.youtube || [];
+      if (nests.length === 0) { alert('Žádná YouTube hnízda k ověření.'); return; }
+
+      var btn = document.getElementById('checkBtn');
+      btn.disabled = true; btn.textContent = '⏳ Kontroluji...';
+      var progress = document.getElementById('checkProgress');
+      var tbody = document.getElementById('checkBody');
+      var table = document.getElementById('checkTable');
+      var summary = document.getElementById('checkSummary');
+      tbody.innerHTML = ''; table.style.display = 'table'; summary.style.display = 'none';
+
+      // Prepare rows
+      for (var i = 0; i < nests.length; i++) {
+        var tr = document.createElement('tr'); tr.id = 'chk-' + i;
+        tr.innerHTML = '<td style="text-align:center;color:#999;font-size:0.8rem;">' + (i+1) + '</td>' +
+          '<td>' + esc(nests[i].name) + '</td>' +
+          '<td style="font-family:monospace;font-size:0.8rem;">' + esc(nests[i].id) + '</td>' +
+          '<td style="text-align:center;">⏳</td>';
+        tbody.appendChild(tr);
+      }
+
+      var checked = 0, live = 0, ok = 0, dead = 0;
+
+      function checkNext(idx) {
+        if (idx >= nests.length) {
+          btn.disabled = false; btn.textContent = '▶ Spustit kontrolu';
+          progress.textContent = 'Hotovo!';
+          summary.style.display = 'block';
+          summary.innerHTML = '<strong>Výsledek:</strong> ' + nests.length + ' hnízd · ' +
+            '<span style="color:#27ae60;">🟢 Živě: ' + live + '</span> · ' +
+            '<span style="color:#e67e22;">🟡 Existuje: ' + ok + '</span> · ' +
+            '<span style="color:#c0392b;">🔴 Nefunguje: ' + dead + '</span>';
+          return;
+        }
+
+        progress.textContent = 'Kontroluji ' + (idx+1) + ' / ' + nests.length + '...';
+        var nest = nests[idx];
+        var row = document.getElementById('chk-' + idx);
+        var statusCell = row.cells[3];
+
+        // Use YouTube oEmbed to check if video exists
+        var oembedUrl = 'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + nest.id + '&format=json';
+
+        fetch(oembedUrl)
+          .then(function(r) {
+            if (r.ok) {
+              return r.json().then(function(data) {
+                var title = (data.title || '').toLowerCase();
+                // Check thumbnail for live indicator
+                var thumbUrl = 'https://img.youtube.com/vi/' + nest.id + '/hqdefault_live.jpg';
+                return fetch(thumbUrl).then(function(tr) {
+                  // If live thumbnail returns content-length > 1000, likely live
+                  var cl = tr.headers.get('content-length');
+                  if (tr.ok && cl && parseInt(cl) > 1000) {
+                    statusCell.innerHTML = '<span style="color:#27ae60;font-weight:700;">🟢 Živě</span>';
+                    live++;
+                  } else {
+                    statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
+                    ok++;
+                  }
+                }).catch(function() {
+                  statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
+                  ok++;
+                });
+              });
+            } else {
+              statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
+              row.style.background = '#fdecea';
+              dead++;
+            }
+          })
+          .catch(function() {
+            statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
+            row.style.background = '#fdecea';
+            dead++;
+          })
+          .finally(function() {
+            checked++;
+            setTimeout(function() { checkNext(idx + 1); }, 300); // Pauza mezi požadavky
+          });
+      }
+
+      checkNext(0);
+    }
     loadData(); showCookieBanner();
   </script>
 
