@@ -1169,6 +1169,18 @@
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
     // ===== LINK CHECK =====
+    function checkThumbnail(videoId) {
+      // YouTube returns a default gray placeholder (120 bytes) for non-existent videos
+      // Real thumbnails are much larger
+      var url = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
+      return fetch(url).then(function(r) {
+        if (!r.ok) return false;
+        var cl = r.headers.get('content-length');
+        // Real thumbnails are > 2000 bytes, placeholder is tiny
+        return cl && parseInt(cl) > 2000;
+      }).catch(function() { return false; });
+    }
+
     function checkAllLinks() {
       var nests = nestsData.youtube || [];
       if (nests.length === 0) { alert('Žádná YouTube hnízda k ověření.'); return; }
@@ -1236,15 +1248,34 @@
                 });
               });
             } else {
-              statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
-              row.style.background = '#fdecea';
-              dead++;
+              // oEmbed failed - try fallback via thumbnail
+              return checkThumbnail(nest.id).then(function(exists) {
+                if (exists) {
+                  statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
+                  ok++;
+                } else {
+                  statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
+                  row.style.background = '#fdecea';
+                  dead++;
+                }
+              });
             }
           })
           .catch(function() {
-            statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
-            row.style.background = '#fdecea';
-            dead++;
+            // Network error - try fallback
+            return checkThumbnail(nest.id).then(function(exists) {
+              if (exists) {
+                statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
+                ok++;
+              } else {
+                statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
+                row.style.background = '#fdecea';
+                dead++;
+              }
+            }).catch(function() {
+              statusCell.innerHTML = '<span style="color:#999;font-weight:700;">⚪ Nelze ověřit</span>';
+              ok++;
+            });
           })
           .finally(function() {
             checked++;
