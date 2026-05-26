@@ -1168,18 +1168,8 @@
 
     function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    // ===== LINK CHECK =====
-    function checkThumbnail(videoId) {
-      // YouTube returns a default gray placeholder (120 bytes) for non-existent videos
-      // Real thumbnails are much larger
-      var url = 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg';
-      return fetch(url).then(function(r) {
-        if (!r.ok) return false;
-        var cl = r.headers.get('content-length');
-        // Real thumbnails are > 2000 bytes, placeholder is tiny
-        return cl && parseInt(cl) > 2000;
-      }).catch(function() { return false; });
-    }
+    // ===== LINK CHECK (YouTube Data API v3) =====
+    var YT_API_KEY = 'AIzaSyA-h3SnXbiuCHiMp0jP006_zl9nRjSuJM0';
 
     function checkAllLinks() {
       var nests = nestsData.youtube || [];
@@ -1203,87 +1193,79 @@
         tbody.appendChild(tr);
       }
 
-      var checked = 0, live = 0, ok = 0, dead = 0;
+      progress.textContent = 'Dotazuji YouTube API...';
 
-      function checkNext(idx) {
-        if (idx >= nests.length) {
-          btn.disabled = false; btn.textContent = '▶ Spustit kontrolu';
-          progress.textContent = 'Hotovo!';
-          summary.style.display = 'block';
-          summary.innerHTML = '<strong>Výsledek:</strong> ' + nests.length + ' hnízd · ' +
-            '<span style="color:#27ae60;">🟢 Živě: ' + live + '</span> · ' +
-            '<span style="color:#e67e22;">🟡 Existuje: ' + ok + '</span> · ' +
-            '<span style="color:#c0392b;">🔴 Nefunguje: ' + dead + '</span>';
-          return;
-        }
-
-        progress.textContent = 'Kontroluji ' + (idx+1) + ' / ' + nests.length + '...';
-        var nest = nests[idx];
-        var row = document.getElementById('chk-' + idx);
-        var statusCell = row.cells[3];
-
-        // Use YouTube oEmbed to check if video exists
-        var oembedUrl = 'https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=' + nest.id + '&format=json';
-
-        fetch(oembedUrl)
-          .then(function(r) {
-            if (r.ok) {
-              return r.json().then(function(data) {
-                var title = (data.title || '').toLowerCase();
-                // Check thumbnail for live indicator
-                var thumbUrl = 'https://img.youtube.com/vi/' + nest.id + '/hqdefault_live.jpg';
-                return fetch(thumbUrl).then(function(tr) {
-                  // If live thumbnail returns content-length > 1000, likely live
-                  var cl = tr.headers.get('content-length');
-                  if (tr.ok && cl && parseInt(cl) > 1000) {
-                    statusCell.innerHTML = '<span style="color:#27ae60;font-weight:700;">🟢 Živě</span>';
-                    live++;
-                  } else {
-                    statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
-                    ok++;
-                  }
-                }).catch(function() {
-                  statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
-                  ok++;
-                });
-              });
-            } else {
-              // oEmbed failed - try fallback via thumbnail
-              return checkThumbnail(nest.id).then(function(exists) {
-                if (exists) {
-                  statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
-                  ok++;
-                } else {
-                  statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
-                  row.style.background = '#fdecea';
-                  dead++;
-                }
-              });
-            }
-          })
-          .catch(function() {
-            // Network error - try fallback
-            return checkThumbnail(nest.id).then(function(exists) {
-              if (exists) {
-                statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
-                ok++;
-              } else {
-                statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
-                row.style.background = '#fdecea';
-                dead++;
-              }
-            }).catch(function() {
-              statusCell.innerHTML = '<span style="color:#999;font-weight:700;">⚪ Nelze ověřit</span>';
-              ok++;
-            });
-          })
-          .finally(function() {
-            checked++;
-            setTimeout(function() { checkNext(idx + 1); }, 300); // Pauza mezi požadavky
-          });
+      // Batch check - YouTube API allows up to 50 IDs per request
+      var ids = nests.map(function(n) { return n.id; });
+      var batches = [];
+      for (var i = 0; i < ids.length; i += 50) {
+        batches.push(ids.slice(i, i + 50));
       }
 
-      checkNext(0);
+      var allItems = {};
+      var batchPromises = batches.map(function(batch) {
+        var url = 'https://www.googleapis.com/youtube/v3/videos?part=snippet,status,liveStreamingDetails&id=' + batch.join(',') + '&key=' + YT_API_KEY;
+        return fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+          if (data.items) {
+            data.items.forEach(function(item) {
+              allItems[item.id] = item;
+            });
+          }
+        });
+      });
+
+      Promise.all(batchPromises).then(function() {
+        var live = 0, ok = 0, dead = 0;
+
+        for (var i = 0; i < nests.length; i++) {
+          var nest = nests[i];
+          var row = document.getElementById('chk-' + i);
+          var statusCell = row.cells[3];
+          var item = allItems[nest.id];
+
+          if (!item) {
+            // Video not found
+            statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nefunguje</span>';
+            row.style.background = '#fdecea';
+            dead++;
+          } else {
+            var status = item.status || {};
+            var liveDetails = item.liveStreamingDetails || {};
+            var snippet = item.snippet || {};
+
+            if (status.uploadStatus === 'rejected' || status.privacyStatus === 'private') {
+              statusCell.innerHTML = '<span style="color:#c0392b;font-weight:700;">🔴 Nedostupné</span>';
+              row.style.background = '#fdecea';
+              dead++;
+            } else if (snippet.liveBroadcastContent === 'live') {
+              statusCell.innerHTML = '<span style="color:#27ae60;font-weight:700;">🟢 Živě</span>';
+              live++;
+            } else if (snippet.liveBroadcastContent === 'upcoming') {
+              statusCell.innerHTML = '<span style="color:#3a7ebf;font-weight:700;">🔵 Plánováno</span>';
+              ok++;
+            } else if (liveDetails.actualEndTime) {
+              statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Vysílání ukončeno</span>';
+              ok++;
+            } else {
+              statusCell.innerHTML = '<span style="color:#e67e22;font-weight:700;">🟡 Existuje</span>';
+              ok++;
+            }
+          }
+        }
+
+        btn.disabled = false; btn.textContent = '▶ Spustit kontrolu';
+        progress.textContent = 'Hotovo!';
+        summary.style.display = 'block';
+        summary.innerHTML = '<strong>Výsledek:</strong> ' + nests.length + ' hnízd · ' +
+          '<span style="color:#27ae60;">🟢 Živě: ' + live + '</span> · ' +
+          '<span style="color:#e67e22;">🟡 Existuje/ukončeno: ' + ok + '</span> · ' +
+          '<span style="color:#c0392b;">🔴 Nefunguje: ' + dead + '</span>';
+
+      }).catch(function(err) {
+        btn.disabled = false; btn.textContent = '▶ Spustit kontrolu';
+        progress.textContent = '❌ Chyba: ' + err.message;
+        progress.style.color = '#c0392b';
+      });
     }
     loadData(); showCookieBanner();
   </script>
