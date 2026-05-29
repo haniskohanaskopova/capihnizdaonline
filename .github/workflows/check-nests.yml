@@ -8,6 +8,8 @@ on:
 jobs:
   check-nests:
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,5 +22,5 @@ jobs:
       - name: Kontrola hnízd a odeslání reportu
         env:
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
-          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node check-nests.js
