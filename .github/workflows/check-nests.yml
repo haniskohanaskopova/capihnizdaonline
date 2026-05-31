@@ -19,8 +19,14 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Instalace nodemailer
+        run: npm install nodemailer
+
       - name: Kontrola hnízd a odeslání reportu
         env:
           YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node check-nests.js
