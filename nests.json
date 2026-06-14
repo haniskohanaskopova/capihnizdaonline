@@ -91,7 +91,7 @@
       "pair": "Vanilka a Borek"
     },
     {
-      "id": "djKFjg4PEC8",
+      "id": "oEmRWLSBK88",
       "name": "Albrechtice",
       "pair": "Albi a Bertík"
     },
@@ -106,7 +106,7 @@
       "pair": "Pepinka a Pepan III"
     },
     {
-      "id": "sWJaioyQgac",
+      "id": "BWeOvpun4Xw",
       "name": "Libštát",
       "pair": "Lada a Lumír"
     },
@@ -145,7 +145,7 @@
       "pair": "Maruška a Maxík"
     },
     {
-      "id": "eyHcse_uxUM",
+      "id": "EFwJneWzLoc",
       "name": "Křemže"
     },
     {
@@ -153,7 +153,7 @@
       "name": "Moravský Písek"
     },
     {
-      "id": "n8W4fmP2rqM",
+      "id": "OmHjhr2dcyI",
       "name": "Vyšní Lhoty"
     },
     {
@@ -170,7 +170,7 @@
       "pair": "Žamberáčci (... a Prokop)"
     },
     {
-      "id": "cof1hhP8Q_A",
+      "id": "2eTPo33GeM4",
       "name": "Lenešice u Loun"
     },
     {
@@ -219,10 +219,6 @@
       "name": "Stará Vráž u Písku"
     },
     {
-      "id": "qsG-mAoiZV0",
-      "name": "Žirec u Dvora Králové n. L."
-    },
-    {
       "id": "QGix5nMKRE4",
       "name": "Kamenice u Jihlavy"
     },
@@ -242,6 +238,10 @@
       "id": "U_TDDANHI-Q",
       "name": "Lípa u Havlíčkova Brodu",
       "pair": "Lipánci (pro rok 2026 ukončeno)"
+    },
+    {
+      "id": "qsG-mAoiZV0",
+      "name": "Žirec u Dvora Králové n. L."
     }
   ],
   "external": [
