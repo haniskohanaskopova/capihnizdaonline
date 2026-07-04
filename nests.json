@@ -1,48 +1,350 @@
-name: Automatická kontrola a oprava čapích hnízd
-
-on:
-  schedule:
-    # 1× denně. UTC → v létě 7:00, v zimě 6:00 (Praha).
-    - cron: '0 5 * * *'
-  workflow_dispatch:
-
-jobs:
-  check-nests:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write   # nutné, aby bot mohl commitnout opravený nests.json
-      issues: write     # záložní GitHub Issue
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Instalace nodemailer
-        run: npm install nodemailer
-
-      - name: Kontrola hnízd a automatická oprava
-        env:
-          YT_API_KEY: ${{ secrets.YT_API_KEY }}
-          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node check-nests.js
-
-      - name: Commit oprav (jen když se něco změnilo)
-        run: |
-          if [[ -n "$(git status --porcelain nests.json check-state.json)" ]]; then
-            git config user.name "Čapí bot"
-            git config user.email "actions@users.noreply.github.com"
-            git add nests.json check-state.json
-            git commit -m "🤖 Auto-oprava streamů – $(TZ='Europe/Prague' date +'%Y-%m-%d %H:%M')"
-            git pull --rebase origin main
-            git push
-            echo "Změny pushnuty, Cloudflare nasadí web."
-          else
-            echo "Žádné změny – nic se necommituje."
-          fi
+{
+  "settings": {
+    "bannerText": "🐣 Sledujte čapí hnízda živě – hnízdní sezóna 2026 v plném proudu!\nPro jistotu videa aktivujte postupně, ať si YT nemyslí, že jste robot ;)\nPředem děkuji za kontrolu a korekci jmen čápů na hnízdech.",
+    "noteText": "Poděkování na rádiu Blaník – <a href=\"https://youtu.be/xqBy-05snaM\" target=\"_blank\" rel=\"noopener\" style=\"color: var(--blue); text-decoration: underline;\">díky kluci</a> ;)",
+    "footerText": "Projekt <strong>Čapí hnízda online</strong> · Sezóna 2026\nVytvořila <span class=\"footer-author\"><a href=\"https://www.instagram.com/tojekajinamamka/\">@tojekajinamamka</a></span>\nVidea jsou přehrávána prostřednictvím veřejného přehrávače YouTube.\nTento web není spojen se společností YouTube ani Google."
+  },
+  "youtube": [
+    {
+      "id": "9yUkeT8lCKo",
+      "name": "Mladé Buky",
+      "pair": "Betynka a Bukáček",
+      "channelId": "UCEzuqbRqksqljvzFubtcvIw"
+    },
+    {
+      "id": "ABJTbc2tOc4",
+      "name": "Bohuslavice",
+      "pair": "Bohunka a Bohdan",
+      "channelId": "UCKBI6TjMyNmDuuJpXeDL-bg"
+    },
+    {
+      "id": "dnPinTdkuxA",
+      "name": "Trutnov",
+      "pair": "Magda a Matěj",
+      "channelId": "UCKBI6TjMyNmDuuJpXeDL-bg"
+    },
+    {
+      "id": "mvf0EqJxWJU",
+      "name": "Rudník",
+      "pair": "Poldinka a „Poláček Leo“",
+      "channelId": "UCOLd01C0zWurDmY-nmkttwg"
+    },
+    {
+      "id": "S46DdA8Mc4I",
+      "name": "Makov - loučka s hnízdem",
+      "pair": "Johanka a Lukášek a spol.",
+      "channelId": "UCFgH1S3UesjjQypQ-g5OB8Q"
+    },
+    {
+      "id": "SLYQKV_vgDw",
+      "name": "Makov - jezírko",
+      "pair": "Johanka a Lukášek a spol.",
+      "channelId": "UCFgH1S3UesjjQypQ-g5OB8Q"
+    },
+    {
+      "id": "iOSBx3yO0Cs",
+      "name": "Milín",
+      "pair": "Terezka a Florián",
+      "channelId": "UCNWfJpKQWMDre-GQVcEchyw"
+    },
+    {
+      "id": "AKaeX-DBSGo",
+      "name": "Nové Mlýny",
+      "pair": "Nověnka a Novísek",
+      "channelId": "UCKeMnl1CSUMjL1SAGg-q27w"
+    },
+    {
+      "id": "EltExIVqoGM",
+      "name": "Slavětín",
+      "pair": "Slávinka a Sláveček",
+      "channelId": "UCarE-N3bd9_-oT7UnNV6t7g"
+    },
+    {
+      "id": "QHj3Jeet_2g",
+      "name": "Rostejn",
+      "pair": "Rostinka a Rostík",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "KmRIXvVr80M",
+      "name": "Rychnov nad Kněžnou",
+      "pair": "paní Čapková a pan Čapek",
+      "channelId": "UC9PCh43v10DnOm2do_V018w"
+    },
+    {
+      "id": "9K5DzV94DFA",
+      "name": "Ústí nad Orlicí",
+      "pair": "Uršulka a Uli",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "Aywt9lVmw4c",
+      "name": "Frýdlant",
+      "pair": "Fanynka a Fred",
+      "channelId": "UC8K5EbprqkasWv6kDkwjU5g"
+    },
+    {
+      "id": "ZGqRc8H-KPA",
+      "name": "Ronov",
+      "pair": "Roninka a Rony",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "JA_kzR-Djz0",
+      "name": "Miletín",
+      "pair": "Miluška a Milouš",
+      "channelId": "UC-gSU9irqTV_T5bN1QmUIdA"
+    },
+    {
+      "id": "EMVYp60g6dk",
+      "name": "Třebíč",
+      "pair": "Terezka a Evžen",
+      "channelId": "UCkZa1IKMjVtw8yCPt8T4pkg"
+    },
+    {
+      "id": "I-aXUuIcKYI",
+      "name": "Příbor",
+      "pair": "Vanilka a Borek",
+      "channelId": "UCn_pMwOIGpMgRcrG-RddiIA"
+    },
+    {
+      "id": "hSApg1N5ppY",
+      "name": "Albrechtice",
+      "pair": "Albi a Bertík",
+      "channelId": "UCuBqE41aVN5yebNGrbYTzOA"
+    },
+    {
+      "id": "6ZH4hW7aqz4",
+      "name": "Vamberk",
+      "pair": "Jiráskovi",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "gyrHO886lkc",
+      "name": "Žichlínek",
+      "pair": "Pepinka a Pepan III",
+      "channelId": "UCY9w3ZMjdWwbGeKRGGUocuA"
+    },
+    {
+      "id": "9b1jFFf1tJs",
+      "name": "Libštát",
+      "pair": "Lada a Lumír",
+      "channelId": "UCSSUx3BhFF21DVDNq4AEe2A"
+    },
+    {
+      "id": "XuEm-WaK9s8",
+      "name": "Sádek u Poličky",
+      "pair": "Perlička a Perlička",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "aH0fgGWiktg",
+      "name": "Brandýs nad Orlicí",
+      "pair": "Dorotka a Ámosek",
+      "channelId": "UCbxsD0mJP3qT6dMJZkvwu7g"
+    },
+    {
+      "id": "fbD_1zbUW3s",
+      "name": "Osík",
+      "pair": "Osíčci",
+      "channelId": "UCtFV3ICgwq1v_z2648_p6Nw"
+    },
+    {
+      "id": "jgyJrjBGiOk",
+      "name": "Jaroměř",
+      "pair": "Jarmilka a Jaromír",
+      "channelId": "UCQBoxFl1gsi4eAEJHu_FI2A"
+    },
+    {
+      "id": "onj5s-P_D_w",
+      "name": "Letohrad",
+      "pair": "Liduška a Ludvík",
+      "channelId": "UCRt6fVl7TkFDG7A8VDWRDyQ"
+    },
+    {
+      "id": "6hhRb1GTH_0",
+      "name": "Příšovice",
+      "channelId": "UChV1FvUzUjMxI9wiv7ZglHg"
+    },
+    {
+      "id": "3aOigQLdtPk",
+      "name": "Nasavrky",
+      "pair": "Maruška a Maxík",
+      "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
+    },
+    {
+      "id": "CEIO3CIwoYA",
+      "name": "Křemže",
+      "channelId": "UCwVHdFH40dppUWPUcSKIMNQ"
+    },
+    {
+      "id": "BWji6sXPLd4",
+      "name": "Moravský Písek",
+      "channelId": "UC8LYYwaFNUlem2Xfkb4RlXA"
+    },
+    {
+      "id": "ztijokQVebk",
+      "name": "Vyšní Lhoty",
+      "channelId": "UCjHP0oRlLqe9kEu7MGBcjnA"
+    },
+    {
+      "id": "k_JIFLPrYdg",
+      "name": "Žďár u Turnova",
+      "channelId": "UCnVexgG5vfTRBpMsc95XB4w"
+    },
+    {
+      "id": "hbtNizzqYk8",
+      "name": "Křenovice",
+      "channelId": "UC8W0lShNQ1Cy-NYht35wYwg"
+    },
+    {
+      "id": "cMhPdmGSUsQ",
+      "name": "Žamberk",
+      "pair": "Žamberáčci (... a Prokop)",
+      "channelId": "UCXhc26YRFQZv5htzTzrUNRg"
+    },
+    {
+      "id": "975JbagH1v4",
+      "name": "Lenešice u Loun",
+      "channelId": "UCrEa_JHsOlWf-ng6bruuR1w"
+    },
+    {
+      "id": "IzR6wz1rQqg",
+      "name": "Hranice na Moravě",
+      "channelId": "UCogWbLQFs6BgnVMeYXgzZaw"
+    },
+    {
+      "id": "9njWFgn4cVU",
+      "name": "Olbramkostel u Znojma",
+      "channelId": "UCx645_VGVgtUahCx2-iCGkw"
+    },
+    {
+      "id": "5zgsO7mUpj8",
+      "name": "Staňkov",
+      "pair": "Staňoušci",
+      "channelId": "UC50JKizRcjtA9FZkk4-tiHw"
+    },
+    {
+      "id": "LaO9ZM3uNjQ",
+      "name": "Uherský Brod",
+      "pair": "Jana a Ámos",
+      "channelId": "UCZgJ-BtpRM7FCC-QMNFa7pQ"
+    },
+    {
+      "id": "TiYAa-rK_w0",
+      "name": "Kačice u Kladna",
+      "pair": "Dorotka a Máchal",
+      "channelId": "UC-_oRsuBvnBGY_y2wWCBIVw"
+    },
+    {
+      "id": "55Z69ehQ5L4",
+      "name": "Moravský Písek",
+      "channelId": "UC8LYYwaFNUlem2Xfkb4RlXA"
+    },
+    {
+      "id": "JCaAjgg3OVQ",
+      "name": "Červená Voda",
+      "pair": "Mlynaříčci",
+      "channelId": "UCztyN7Bh0WAKcwhwW9Pzhbg"
+    },
+    {
+      "id": "9jzpJuh9Aj8",
+      "name": "Dubné u Českých Budějovic",
+      "pair": "Maruška a Hugo",
+      "channelId": "UCNVSTTnA-r_cKLE2NyEyhKQ"
+    },
+    {
+      "id": "Od4v8lRg9lU",
+      "name": "Záhlinice",
+      "channelId": "UC8W0lShNQ1Cy-NYht35wYwg"
+    },
+    {
+      "id": "m_zU38s2pAI",
+      "name": "Stará Vráž u Písku",
+      "channelId": "UChBmHXgikdCxjTt4ol7tiJw"
+    },
+    {
+      "id": "QGix5nMKRE4",
+      "name": "Kamenice u Jihlavy",
+      "channelId": "UCCJVVr6rgQ3csOrPIegA1Vw"
+    },
+    {
+      "id": "Tla37Ik4l78",
+      "name": "Jezvé",
+      "channelId": "UCHKNfCo3GBro4rkYRBdD_sg"
+    },
+    {
+      "id": "mkwaCfLsl40",
+      "name": "Cheb",
+      "channelId": "UCxEOp8VrM5JJt33A5i_0XOg"
+    },
+    {
+      "id": "bJA4kMU_8SM",
+      "name": "Chýnov",
+      "channelId": "UC0fP7czhsJk36hsmwCHyliA"
+    },
+    {
+      "id": "U20MBzXHn30",
+      "name": "Žirec u Dvora Králové n. L.",
+      "channelId": "UCh_TUVLO8rVuE68gF91twXg"
+    },
+    {
+      "id": "U_TDDANHI-Q",
+      "name": "Lípa u Havlíčkova Brodu",
+      "pair": "Lipánci (pro rok 2026 ukončeno)"
+    }
+  ],
+  "external": [
+    {
+      "name": "Broumov",
+      "url": "https://www.broumov-mesto.cz/vismo/dokumenty2.asp?id_org=1276&id=4068",
+      "image": "ext_broumov.jpg",
+      "pair": "Maruška a Otík"
+    },
+    {
+      "name": "Jilemnice",
+      "url": "https://webkamery-krkonose.cz/kamera/50-jilemnice-ap-hnzdo",
+      "image": "ext_jilemnice.jpg"
+    },
+    {
+      "name": "Choceň",
+      "url": "https://www.chobex.cz/capichocen",
+      "image": "ext_chocen.jpg"
+    },
+    {
+      "name": "Dětmarovice",
+      "url": "https://www.capihnizdo.online/capi-hnizdo-detmarovice/",
+      "image": "ext_detmarovice.jpg"
+    },
+    {
+      "name": "Závada",
+      "url": "https://www.capihnizdo.online/34-2/",
+      "image": "ext_zavada.jpg"
+    },
+    {
+      "name": "Vrchlabí",
+      "url": "https://webkamery-krkonose.cz/kamera/41-vrchlabi-capi-hnizdo",
+      "image": "ext_vrchlabi.jpg"
+    },
+    {
+      "name": "Rohatec",
+      "url": "https://capirohatec.cz/",
+      "image": "ext_rohatec.jpg"
+    },
+    {
+      "name": "Cvikov",
+      "url": "https://www.cvikov.cz/capi-ve-cvikove/ms-6761",
+      "image": "ext_cvikov.jpg"
+    },
+    {
+      "name": "Bzenec",
+      "url": "https://www.capibzenec.cz/",
+      "image": "ext_bzenec.jpg"
+    },
+    {
+      "name": "Těmice",
+      "url": "https://www.capitemice.cz/",
+      "image": "ext_temice.jpg"
+    }
+  ]
+}
