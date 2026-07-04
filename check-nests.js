@@ -8,6 +8,17 @@ const SMTP_PASS = process.env.SMTP_PASS;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_REPO = process.env.GITHUB_REPOSITORY;
 
+// Ochrana kvóty: search.list stojí 100 jednotek, denní limit projektu je 10 000.
+// 80 vyhledávání = max 8 000 jednotek, zbytek necháme jako rezervu (admin panel apod.).
+const SEARCH_LIMIT = 80;
+const STATE_FILE = 'check-state.json';
+
+// Stavová paměť: co už bylo nahlášeno, aby se e-maily a Issues neopakovaly každý den.
+function loadState() {
+  try { return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8')); }
+  catch (e) { return { flags: {} }; }
+}
+
 // ---------- pomocné funkce ----------
 function norm(s) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -128,10 +139,16 @@ async function main() {
 
   const appliedAll = [];
   const flaggedAll = [];
+  let searchesUsed = 0;
 
   // 4) Per kanál: najdi živé streamy a přiřaď
   for (const channelId of Object.keys(byChannel)) {
     const problems = byChannel[channelId];
+    if (searchesUsed >= SEARCH_LIMIT) {
+      for (const nest of problems) flaggedAll.push({ name: nest.name, reason: 'denní limit vyhledávání – zkontroluji při dalším běhu', candidates: [] });
+      continue;
+    }
+    searchesUsed++;
     let candidates = (await ytSearchLive(channelId)).filter(c => !usedIds.has(c.videoId));
     if (candidates.length === 0) {
       for (const nest of problems) flaggedAll.push({ name: nest.name, reason: 'kanál nevysílá živě (mimo sezónu / jen záznam)', candidates: [] });
@@ -152,6 +169,11 @@ async function main() {
 
   // 5) Smazaná videa bez channelId – fallback podle názvu, jen NÁVRH
   for (const nest of noChannel) {
+    if (searchesUsed >= SEARCH_LIMIT) {
+      flaggedAll.push({ name: nest.name, reason: 'denní limit vyhledávání – zkontroluji při dalším běhu', candidates: [] });
+      continue;
+    }
+    searchesUsed++;
     const cands = (await ytSearchByName(nest.name)).filter(c => !usedIds.has(c.videoId));
     flaggedAll.push({
       name: nest.name,
@@ -169,8 +191,21 @@ async function main() {
     console.log('✅ Žádné změny v nests.json.');
   }
 
-  if (appliedAll.length === 0 && flaggedAll.length === 0) {
-    console.log('✅ Vše v pořádku, report se neposílá.');
+  // 6b) Porovnání se stavem z minulého běhu – hlásíme jen ZMĚNY, ne pořád dokola totéž
+  const state = loadState();
+  const prevFlags = state.flags || {};
+  const currFlags = {};
+  for (const f of flaggedAll) currFlags[f.name] = f.reason;
+
+  const newFlags = flaggedAll.filter(f => prevFlags[f.name] !== f.reason);
+  const resolved = Object.keys(prevFlags).filter(n => !(n in currFlags));
+  if (resolved.length) console.log('✅ Vyřešeno od minula:', resolved.join(', '));
+
+  const stateChanged = JSON.stringify(prevFlags) !== JSON.stringify(currFlags);
+  if (stateChanged) fs.writeFileSync(STATE_FILE, JSON.stringify({ flags: currFlags, updated: new Date().toISOString() }, null, 2) + '\n', 'utf8');
+
+  if (appliedAll.length === 0 && newFlags.length === 0) {
+    console.log(`✅ Nic nového k hlášení (trvající problémy: ${flaggedAll.length} – už nahlášeno dříve). Report se neposílá.`);
     return;
   }
 
@@ -182,7 +217,8 @@ async function main() {
     <div style="background:#e8f4fd;padding:12px 16px;border-radius:8px;margin:16px 0;">
       ${nests.length} hnízd · <span style="color:#27ae60;">🟢 ${live.length} živě</span> ·
       <span style="color:#2e86de;">🤖 ${appliedAll.length} auto-opraveno</span> ·
-      <span style="color:#e67e22;">⚠️ ${flaggedAll.length} ke kontrole</span>
+      <span style="color:#e67e22;">⚠️ ${newFlags.length} nově ke kontrole</span>
+      ${flaggedAll.length > newFlags.length ? ` · <span style="color:#999;">${flaggedAll.length - newFlags.length} trvá z minula (už nahlášeno)</span>` : ''}
     </div>`;
 
   if (appliedAll.length > 0) {
@@ -193,11 +229,11 @@ async function main() {
     html += '</table><p style="color:#888;font-size:12px;">Tyto změny už jsou na webu. Pokud některá nesedí, přepiš ji v admin panelu.</p>';
   }
 
-  if (flaggedAll.length > 0) {
-    html += `<h3 style="color:#e67e22;">⚠️ Vyžaduje tvoji kontrolu (${flaggedAll.length})</h3>
+  if (newFlags.length > 0) {
+    html += `<h3 style="color:#e67e22;">⚠️ Nově vyžaduje tvoji kontrolu (${newFlags.length})</h3>
       <table style="width:100%;border-collapse:collapse;font-size:13px;">
       <tr style="background:#fef5e7;"><th style="padding:8px;text-align:left;">Hnízdo</th><th style="padding:8px;text-align:left;">Důvod / kandidáti</th></tr>`;
-    for (const f of flaggedAll) {
+    for (const f of newFlags) {
       const c = (f.candidates && f.candidates.length)
         ? f.candidates.map(x => `<a href="https://www.youtube.com/watch?v=${x.videoId}">${x.title}</a>`).join('<br>')
         : '<span style="color:#999;">žádný kandidát</span>';
@@ -213,7 +249,7 @@ async function main() {
       const transporter = nodemailer.createTransport({ service: 'gmail', auth: { user: SMTP_USER, pass: SMTP_PASS } });
       await transporter.sendMail({
         from: `Čapí hnízda <${SMTP_USER}>`, to: NOTIFY_EMAIL,
-        subject: `🐣 ${appliedAll.length} auto-opraveno, ${flaggedAll.length} ke kontrole`, html
+        subject: `🐣 ${appliedAll.length} auto-opraveno, ${newFlags.length} nově ke kontrole`, html
       });
       console.log('✅ Email odeslán.');
     } catch (e) { console.error('❌ Email chyba:', e.message); }
@@ -221,13 +257,13 @@ async function main() {
 
   if (GITHUB_TOKEN && GITHUB_REPO) {
     try {
-      let body = `## 🐣 Kontrola – ${now}\n\n🤖 Auto-opraveno: ${appliedAll.length} · ⚠️ Ke kontrole: ${flaggedAll.length}\n\n`;
+      let body = `## 🐣 Kontrola – ${now}\n\n🤖 Auto-opraveno: ${appliedAll.length} · ⚠️ Nově ke kontrole: ${newFlags.length} · trvá z minula: ${flaggedAll.length - newFlags.length}\n\n`;
       if (appliedAll.length) { body += `### 🤖 Automaticky opraveno\n`; for (const a of appliedAll) body += `- **${a.name}**: \`${a.oldId}\` → [${a.newId}](https://www.youtube.com/watch?v=${a.newId}) — ${a.title}\n`; body += '\n'; }
-      if (flaggedAll.length) { body += `### ⚠️ Ke kontrole\n`; for (const f of flaggedAll) { body += `- **${f.name}** — ${f.reason}\n`; for (const c of (f.candidates || [])) body += `  - [${c.videoId}](https://www.youtube.com/watch?v=${c.videoId}) ${c.title}\n`; } }
+      if (newFlags.length) { body += `### ⚠️ Nově ke kontrole\n`; for (const f of newFlags) { body += `- **${f.name}** — ${f.reason}\n`; for (const c of (f.candidates || [])) body += `  - [${c.videoId}](https://www.youtube.com/watch?v=${c.videoId}) ${c.title}\n`; } }
       await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues`, {
         method: 'POST',
         headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: `🐣 ${now}: ${appliedAll.length} opraveno, ${flaggedAll.length} ke kontrole`, body, labels: ['kontrola'] })
+        body: JSON.stringify({ title: `🐣 ${now}: ${appliedAll.length} opraveno, ${newFlags.length} nově ke kontrole`, body, labels: ['kontrola'] })
       });
       console.log('✅ GitHub Issue vytvořeno.');
     } catch (e) { console.error('Issue chyba:', e.message); }
