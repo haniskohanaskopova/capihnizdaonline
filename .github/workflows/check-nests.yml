@@ -2,8 +2,8 @@ name: Automatická kontrola a oprava čapích hnízd
 
 on:
   schedule:
-    # 3× denně. UTC → v létě 7:00 / 13:00 / 19:00, v zimě 6:00 / 12:00 / 18:00 (Praha).
-    - cron: '0 5,11,17 * * *'
+    # 1× denně. UTC → v létě 7:00, v zimě 6:00 (Praha).
+    - cron: '0 5 * * *'
   workflow_dispatch:
 
 jobs:
@@ -33,13 +33,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node check-nests.js
 
-      - name: Commit oprav (jen když se nests.json změnil)
+      - name: Commit oprav (jen když se něco změnilo)
         run: |
-          if [[ -n "$(git status --porcelain nests.json)" ]]; then
+          if [[ -n "$(git status --porcelain nests.json check-state.json)" ]]; then
             git config user.name "Čapí bot"
             git config user.email "actions@users.noreply.github.com"
-            git add nests.json
+            git add nests.json check-state.json
             git commit -m "🤖 Auto-oprava streamů – $(TZ='Europe/Prague' date +'%Y-%m-%d %H:%M')"
+            git pull --rebase origin main
             git push
             echo "Změny pushnuty, Cloudflare nasadí web."
           else
