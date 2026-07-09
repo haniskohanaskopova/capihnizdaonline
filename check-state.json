@@ -1,7 +1,6 @@
 {
   "flags": {
     "Nové Mlýny": "kanál nevysílá živě (mimo sezónu / jen záznam)",
-    "Třebíč": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Moravský Písek": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Křenovice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Staňkov": "kanál nevysílá živě (mimo sezónu / jen záznam)",
@@ -9,5 +8,5 @@
     "Žirec u Dvora Králové n. L.": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-07-08T07:30:49.751Z"
+  "updated": "2026-07-09T08:40:36.392Z"
 }
