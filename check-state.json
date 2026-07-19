@@ -1,6 +1,5 @@
 {
   "flags": {
-    "Milín": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Nové Mlýny": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Ronov": "nejednoznačná shoda názvů",
     "Moravský Písek": "kanál nevysílá živě (mimo sezónu / jen záznam)",
@@ -9,5 +8,5 @@
     "Žirec u Dvora Králové n. L.": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-07-18T07:00:44.346Z"
+  "updated": "2026-07-19T07:27:57.565Z"
 }
