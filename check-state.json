@@ -1,14 +1,12 @@
 {
   "flags": {
-    "Nové Mlýny": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Ronov": "nejednoznačná shoda názvů",
-    "Křemže": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Křenovice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
-    "Moravský Písek": "nejednoznačná shoda názvů",
+    "Moravský Písek": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Dubné u Českých Budějovic": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Jezvé": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Žirec u Dvora Králové n. L.": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-08-10T06:11:10.608Z"
+  "updated": "2026-08-11T05:54:25.442Z"
 }
