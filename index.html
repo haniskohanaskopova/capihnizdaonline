@@ -230,6 +230,7 @@
     .nest-card:target, .ext-card:target {
       outline: 3px solid #f0a830; outline-offset: 3px; border-radius: 12px;
     }
+    .nest-card, .ext-card { scroll-margin-top: 20px; }
 
     .video-wrapper {
       position: relative;
@@ -992,7 +993,7 @@
     function jumpToNest(ev, id) {
       ev.preventDefault();
       var el = document.getElementById(id);
-      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (history.replaceState) history.replaceState(null, '', '#' + id); }
     }
 
@@ -1023,10 +1024,15 @@
       var footer = document.getElementById('footerText');
       if (s.footerText) footer.innerHTML = s.footerText.replace(/\n/g, '<br>');
       var intro = document.getElementById('introText');
-      if (intro) intro.innerHTML = (s.introText && s.introText.trim())
-        ? s.introText.replace(/\n/g, '<br>')
-        : 'Sledujte živě čapí hnízda z celé České republiky – přenosy z hnízdní sezóny čápa bílého přehledně na jednom místě. Živé YouTube kamery i odkazy na externí webkamery přímo od hnízd.';
-    }
+      if (intro) {
+        if (s.introText && s.introText.trim()) {
+          intro.innerHTML = '<strong>' + s.introText.replace(/\n/g, '<br>') + '</strong>';
+          intro.style.display = '';
+        } else {
+          intro.innerHTML = '';
+          intro.style.display = 'none';
+        }
+      }
 
     function showCookieBanner() {
       try { if (!localStorage.getItem('yt-cookies')) document.getElementById('cookieBanner').classList.add('show'); }
