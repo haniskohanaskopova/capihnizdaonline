@@ -209,14 +209,27 @@
     /* animation-delay se nastavuje v JS (renderNests) – max 0,6 s */
 
     .seo-intro {
-      max-width: 1000px; margin: 24px auto 0; padding: 0 16px;
+      max-width: 1000px; margin: 20px auto 0; padding: 0 16px;
       color: #4a5568; font-size: 0.95rem; line-height: 1.6; text-align: justify;
     }
-    .seo-intro h2 { font-size: 1.15rem; color: #2d3748; margin: 0 0 8px; text-align: left; }
-    .seo-locations {
-      margin-top: 12px; font-size: 0.88rem; color: #718096; line-height: 1.7;
+    .seo-details { margin-top: 10px; }
+    .seo-details summary {
+      cursor: pointer; color: #2e6da4; font-size: 0.9rem; font-weight: 600;
+      padding: 6px 0; list-style: none; user-select: none;
     }
-    .seo-locations strong { color: #4a5568; }
+    .seo-details summary::-webkit-details-marker { display: none; }
+    .seo-details[open] summary { margin-bottom: 8px; }
+    .seo-locations {
+      font-size: 0.9rem; color: #4a5568; line-height: 2;
+    }
+    .seo-locations a {
+      color: #2e6da4; text-decoration: none; white-space: nowrap;
+      border-bottom: 1px dotted #a9c7e0;
+    }
+    .seo-locations a:hover { color: #1a4971; border-bottom-style: solid; }
+    .nest-card:target, .ext-card:target {
+      outline: 3px solid #f0a830; outline-offset: 3px; border-radius: 12px;
+    }
 
     .video-wrapper {
       position: relative;
@@ -614,16 +627,13 @@
     <strong>Načítám...</strong>
   </div>
 
-  <!-- SEO INTRO – text pro návštěvníky i pro vyhledávače, seznam lokalit se doplní z nests.json -->
+  <!-- SEO INTRO – krátký text (upravitelný v adminu) + rozklikávací navigace na hnízda -->
   <section class="seo-intro">
-    <h2>Živé přenosy z čapích hnízd na jednom místě</h2>
-    <p>
-      Na tomto webu sledujete živě čapí hnízda z celé České republiky. Přenosy z hnízdní
-      sezóny čápa bílého jsou přehledně na jednom místě – živé YouTube kamery i odkazy na
-      externí webkamery přímo od hnízd. Můžete pozorovat přílet čápů, hnízdění, líhnutí
-      mláďat i jejich první vzlety a odlet do teplých krajin.
-    </p>
-    <div class="seo-locations" id="seoLocations"></div>
+    <p id="introText"></p>
+    <details class="seo-details">
+      <summary>📍 Zobrazit seznam všech sledovaných hnízd</summary>
+      <div class="seo-locations" id="seoLocations"></div>
+    </details>
   </section>
 
   <!-- MAIN CONTENT -->
@@ -851,6 +861,7 @@
       <div style="display:flex;gap:0;margin-bottom:-1px;flex-wrap:wrap;">
         <button class="admin-tab-btn active" onclick="switchAdminTab('yt',this)">YouTube hnízda</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('ext',this)">Další hnízda</button>
+        <button class="admin-tab-btn" onclick="switchAdminTab('intro',this)">Úvodní text</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('banner',this)">Horní text</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('note',this)">Poděkování</button>
         <button class="admin-tab-btn" onclick="switchAdminTab('footer',this)">Patička</button>
@@ -879,6 +890,13 @@
             </table>
           </div>
           <button onclick="addExtNest()" class="adm-add-btn">＋ Přidat externí hnízdo</button>
+        </div>
+
+        <!-- INTRO TAB -->
+        <div id="adminIntro" style="display:none;">
+          <h3 style="color:var(--navy);margin-bottom:0.5rem;">Úvodní text pod hlavičkou</h3>
+          <p style="font-size:0.82rem;color:var(--text-light);margin-bottom:1rem;">Krátký uvítací odstavec nahoře na webu (vidí ho návštěvníci i Google). Seznam hnízd pod ním se doplňuje automaticky, ten neřeš. Necháš-li prázdné, použije se výchozí text.</p>
+          <textarea id="adminIntroText" rows="5" style="font-family:Tahoma,sans-serif;font-size:0.9rem;width:100%;padding:0.8rem;border:1px solid #d5e3f0;border-radius:6px;resize:vertical;line-height:1.7;"></textarea>
         </div>
 
         <!-- BANNER TAB -->
@@ -948,7 +966,7 @@
     var GITHUB_FILE = 'nests.json';
     var ADMIN_PASS = 'jaktobylosbetynkouabukackem';
 
-    var nestsData = { youtube: [], external: [], settings: { bannerText:'', noteText:'', footerText:'' } };
+    var nestsData = { youtube: [], external: [], settings: { introText:'', bannerText:'', noteText:'', footerText:'' } };
     var cookiesAccepted = false;
     try { cookiesAccepted = localStorage.getItem('yt-cookies') === 'accepted'; } catch(e) {}
 
@@ -963,19 +981,37 @@
         .catch(function(err) { console.error('Chyba načítání nests.json:', err); });
     }
 
+    // Vytvoří bezpečné id z názvu (bez diakritiky, mezer) pro kotvu karty
+    function slugify(s) {
+      return 'h-' + (s || '').toString().toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+
+    // Plynulé sroluje na kartu hnízda po kliknutí v seznamu
+    function jumpToNest(ev, id) {
+      ev.preventDefault();
+      var el = document.getElementById(id);
+      if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (history.replaceState) history.replaceState(null, '', '#' + id); }
+    }
+
     function renderSeoLocations() {
       var el = document.getElementById('seoLocations');
       if (!el) return;
       var yt = nestsData.youtube || [], ext = nestsData.external || [];
-      var names = [];
-      for (var i = 0; i < yt.length; i++) if (yt[i].name) names.push(yt[i].name);
-      for (var j = 0; j < ext.length; j++) if (ext[j].name) names.push(ext[j].name);
-      // unikátní + seřazené česky
+      var all = [];
+      for (var i = 0; i < yt.length; i++) if (yt[i].name) all.push(yt[i].name);
+      for (var j = 0; j < ext.length; j++) if (ext[j].name) all.push(ext[j].name);
+      // unikátní + česky seřazené
       var seen = {}, uniq = [];
-      for (var k = 0; k < names.length; k++) { if (!seen[names[k]]) { seen[names[k]] = 1; uniq.push(names[k]); } }
+      for (var k = 0; k < all.length; k++) { if (!seen[all[k]]) { seen[all[k]] = 1; uniq.push(all[k]); } }
       uniq.sort(function(a, b){ return a.localeCompare(b, 'cs'); });
-      var list = uniq.map(function(n){ return esc(n); }).join(', ');
-      el.innerHTML = '<strong>Sledovaná hnízda a lokality:</strong> ' + list + '.';
+      var html = uniq.map(function(n){
+        var id = slugify(n);
+        return '<a href="#' + id + '" onclick="jumpToNest(event,\'' + id + '\')">' + esc(n) + '</a>';
+      }).join(' · ');
+      el.innerHTML = html;
     }
 
     function renderTexts() {
@@ -986,6 +1022,10 @@
       if (s.noteText) note.innerHTML = '<strong>' + s.noteText + '</strong>';
       var footer = document.getElementById('footerText');
       if (s.footerText) footer.innerHTML = s.footerText.replace(/\n/g, '<br>');
+      var intro = document.getElementById('introText');
+      if (intro) intro.innerHTML = (s.introText && s.introText.trim())
+        ? s.introText.replace(/\n/g, '<br>')
+        : 'Sledujte živě čapí hnízda z celé České republiky – přenosy z hnízdní sezóny čápa bílého přehledně na jednom místě. Živé YouTube kamery i odkazy na externí webkamery přímo od hnízd.';
     }
 
     function showCookieBanner() {
@@ -1004,8 +1044,11 @@
     function renderNests() {
       var grid = document.getElementById('nestGrid'); grid.innerHTML = '';
       var nests = nestsData.youtube || [];
+      var usedIds = {};
       for (var i = 0; i < nests.length; i++) {
         var nest = nests[i], card = document.createElement('div'); card.className = 'nest-card';
+        var sid = slugify(nest.name); while (usedIds[sid]) sid = sid + '-2'; usedIds[sid] = 1;
+        card.id = sid;
         card.style.animationDelay = Math.min(i * 0.05, 0.6).toFixed(2) + 's';
         var thumbUrl = 'https://img.youtube.com/vi/' + nest.id + '/hqdefault.jpg';
         var cn = cookiesAccepted ? 'Kliknutím spustíte živý přenos' : 'Kliknutím načtete video z YouTube a souhlasíte s cookies YouTube/Google';
@@ -1022,7 +1065,7 @@
       var exts = nestsData.external || [];
       for (var i = 0; i < exts.length; i++) {
         var ext = exts[i], pH = ext.pair ? '<div class="nest-pair">' + esc(ext.pair) + '</div>' : '';
-        grid.insertAdjacentHTML('beforeend', '<div class="ext-card"><a class="ext-img-link" href="' + esc(ext.url) + '" target="_blank" rel="noopener"><img class="ext-thumb" loading="lazy" src="' + esc(ext.image) + '" alt="Čapí hnízdo ' + esc(ext.name) + '"></a><div class="nest-info"><img class="location-icon" src="icon.jpg" alt=""><h2>' + esc(ext.name) + '</h2><a class="yt-link" href="' + esc(ext.url) + '" target="_blank" rel="noopener">↗ Odkaz</a></div>' + pH + '</div>');
+        grid.insertAdjacentHTML('beforeend', '<div class="ext-card" id="' + esc(slugify(ext.name)) + '"><a class="ext-img-link" href="' + esc(ext.url) + '" target="_blank" rel="noopener"><img class="ext-thumb" loading="lazy" src="' + esc(ext.image) + '" alt="Čapí hnízdo ' + esc(ext.name) + '"></a><div class="nest-info"><img class="location-icon" src="icon.jpg" alt=""><h2>' + esc(ext.name) + '</h2><a class="yt-link" href="' + esc(ext.url) + '" target="_blank" rel="noopener">↗ Odkaz</a></div>' + pH + '</div>');
       }
     }
 
@@ -1055,6 +1098,7 @@
         document.getElementById('adminPanel').style.display = 'block';
         renderAdminYt(); renderAdminExt(); updateAdminStats();
         var s = nestsData.settings || {};
+        document.getElementById('adminIntroText').value = s.introText || '';
         document.getElementById('adminBannerText').value = (s.bannerText || '').replace(/\n/g, '\n');
         document.getElementById('adminNoteText').value = s.noteText || '';
         document.getElementById('adminFooterText').value = (s.footerText || '').replace(/\n/g, '\n');
@@ -1072,7 +1116,7 @@
     }
 
     var adminTabs = ['yt','ext','banner','note','footer'];
-    var adminTabIds = { yt:'adminYt', ext:'adminExt', banner:'adminBanner', note:'adminNote', footer:'adminFooter', check:'adminCheck' };
+    var adminTabIds = { yt:'adminYt', ext:'adminExt', intro:'adminIntro', banner:'adminBanner', note:'adminNote', footer:'adminFooter', check:'adminCheck' };
     function switchAdminTab(tab, btn) {
       var bs=document.querySelectorAll('.admin-tab-btn'); for(var i=0;i<bs.length;i++) bs[i].classList.remove('active'); btn.classList.add('active');
       for(var k in adminTabIds) document.getElementById(adminTabIds[k]).style.display = k===tab ? 'block' : 'none';
@@ -1127,6 +1171,7 @@
 
       // Collect text fields
       nestsData.settings = nestsData.settings || {};
+      nestsData.settings.introText = document.getElementById('adminIntroText').value;
       nestsData.settings.bannerText = document.getElementById('adminBannerText').value;
       nestsData.settings.noteText = document.getElementById('adminNoteText').value;
       nestsData.settings.footerText = document.getElementById('adminFooterText').value;
