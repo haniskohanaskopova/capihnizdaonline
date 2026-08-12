@@ -84,13 +84,13 @@
       "channelId": "UC8K5EbprqkasWv6kDkwjU5g"
     },
     {
-      "id": "ZGqRc8H-KPA",
+      "id": "Y9YT_4xnjNc",
       "name": "Ronov",
       "pair": "Roninka a Rony",
       "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
     },
     {
-      "id": "_6AxZX8VZ08",
+      "id": "dsxbs1P8DO0",
       "name": "Miletín",
       "pair": "Miluška a Milouš",
       "channelId": "UC-gSU9irqTV_T5bN1QmUIdA"
@@ -106,12 +106,6 @@
       "name": "Příbor",
       "pair": "Vanilka a Borek",
       "channelId": "UCn_pMwOIGpMgRcrG-RddiIA"
-    },
-    {
-      "id": "DmFKNXIsT-Q",
-      "name": "Albrechtice",
-      "pair": "Albi a Bertík",
-      "channelId": "UCuBqE41aVN5yebNGrbYTzOA"
     },
     {
       "id": "cC-wVZ994cU",
@@ -156,6 +150,12 @@
       "channelId": "UCQBoxFl1gsi4eAEJHu_FI2A"
     },
     {
+      "id": "DmFKNXIsT-Q",
+      "name": "Albrechtice",
+      "pair": "Albi a Bertík",
+      "channelId": "UCuBqE41aVN5yebNGrbYTzOA"
+    },
+    {
       "id": "P4jM_dkvJ6Y",
       "name": "Letohrad",
       "pair": "Liduška a Ludvík",
@@ -171,11 +171,6 @@
       "name": "Nasavrky",
       "pair": "Maruška a Maxík",
       "channelId": "UCxV4eS3-E8sjp8la3ayQe-g"
-    },
-    {
-      "id": "XVz-IzPJVXc",
-      "name": "Křemže",
-      "channelId": "UCwVHdFH40dppUWPUcSKIMNQ"
     },
     {
       "id": "PI7gQqCkom0",
@@ -202,6 +197,11 @@
       "name": "Žamberk",
       "pair": "Žamberáčci (... a Prokop)",
       "channelId": "UCXhc26YRFQZv5htzTzrUNRg"
+    },
+    {
+      "id": "XVz-IzPJVXc",
+      "name": "Křemže",
+      "channelId": "UCwVHdFH40dppUWPUcSKIMNQ"
     },
     {
       "id": "uGIiYNJEg3M",
@@ -237,7 +237,7 @@
       "channelId": "UC-_oRsuBvnBGY_y2wWCBIVw"
     },
     {
-      "id": "xr7A77hhMyA",
+      "id": "PI7gQqCkom0",
       "name": "Moravský Písek",
       "channelId": "UC8LYYwaFNUlem2Xfkb4RlXA"
     },
@@ -246,12 +246,6 @@
       "name": "Červená Voda",
       "pair": "Mlynaříčci",
       "channelId": "UCztyN7Bh0WAKcwhwW9Pzhbg"
-    },
-    {
-      "id": "9jzpJuh9Aj8",
-      "name": "Dubné u Českých Budějovic",
-      "pair": "Maruška a Hugo",
-      "channelId": "UCNVSTTnA-r_cKLE2NyEyhKQ"
     },
     {
       "id": "Od4v8lRg9lU",
@@ -274,6 +268,12 @@
       "channelId": "UCHKNfCo3GBro4rkYRBdD_sg"
     },
     {
+      "id": "9jzpJuh9Aj8",
+      "name": "Dubné u Českých Budějovic",
+      "pair": "Maruška a Hugo",
+      "channelId": "UCNVSTTnA-r_cKLE2NyEyhKQ"
+    },
+    {
       "id": "n2VD7ePyYM0",
       "name": "Cheb",
       "channelId": "UCxEOp8VrM5JJt33A5i_0XOg"
@@ -291,7 +291,7 @@
     {
       "id": "U_TDDANHI-Q",
       "name": "Lípa u Havlíčkova Brodu",
-      "pair": "Lipánci (pro rok 2026 ukončeno)"
+      "pair": "Lipánci"
     }
   ],
   "external": [
