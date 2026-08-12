@@ -16,6 +16,17 @@
   <meta property="og:image" content="https://capihnizdaonline.cz/header.jpg">
   <meta property="og:locale" content="cs_CZ">
   <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Čapí hnízda online",
+    "url": "https://capihnizdaonline.cz/",
+    "description": "Sledujte živě čapí hnízda na jednom místě. Živé YouTube přenosy z hnízdní sezóny v České republice.",
+    "inLanguage": "cs",
+    "about": { "@type": "Thing", "name": "Čáp bílý, živé přenosy z hnízd, ptačí webkamery" }
+  }
+  </script>
   <style>
     :root {
       --sky: #e8f2fa;
@@ -196,6 +207,16 @@
     }
 
     /* animation-delay se nastavuje v JS (renderNests) – max 0,6 s */
+
+    .seo-intro {
+      max-width: 1000px; margin: 24px auto 0; padding: 0 16px;
+      color: #4a5568; font-size: 0.95rem; line-height: 1.6; text-align: justify;
+    }
+    .seo-intro h2 { font-size: 1.15rem; color: #2d3748; margin: 0 0 8px; text-align: left; }
+    .seo-locations {
+      margin-top: 12px; font-size: 0.88rem; color: #718096; line-height: 1.7;
+    }
+    .seo-locations strong { color: #4a5568; }
 
     .video-wrapper {
       position: relative;
@@ -593,6 +614,18 @@
     <strong>Načítám...</strong>
   </div>
 
+  <!-- SEO INTRO – text pro návštěvníky i pro vyhledávače, seznam lokalit se doplní z nests.json -->
+  <section class="seo-intro">
+    <h2>Živé přenosy z čapích hnízd na jednom místě</h2>
+    <p>
+      Na tomto webu sledujete živě čapí hnízda z celé České republiky. Přenosy z hnízdní
+      sezóny čápa bílého jsou přehledně na jednom místě – živé YouTube kamery i odkazy na
+      externí webkamery přímo od hnízd. Můžete pozorovat přílet čápů, hnízdění, líhnutí
+      mláďat i jejich první vzlety a odlet do teplých krajin.
+    </p>
+    <div class="seo-locations" id="seoLocations"></div>
+  </section>
+
   <!-- MAIN CONTENT -->
   <main>
     <div class="nest-grid" id="nestGrid"></div>
@@ -925,9 +958,24 @@
         .then(function(data) {
           nestsData = data;
           if (!nestsData.settings) nestsData.settings = {};
-          renderNests(); renderExtNests(); renderTexts();
+          renderNests(); renderExtNests(); renderTexts(); renderSeoLocations();
         })
         .catch(function(err) { console.error('Chyba načítání nests.json:', err); });
+    }
+
+    function renderSeoLocations() {
+      var el = document.getElementById('seoLocations');
+      if (!el) return;
+      var yt = nestsData.youtube || [], ext = nestsData.external || [];
+      var names = [];
+      for (var i = 0; i < yt.length; i++) if (yt[i].name) names.push(yt[i].name);
+      for (var j = 0; j < ext.length; j++) if (ext[j].name) names.push(ext[j].name);
+      // unikátní + seřazené česky
+      var seen = {}, uniq = [];
+      for (var k = 0; k < names.length; k++) { if (!seen[names[k]]) { seen[names[k]] = 1; uniq.push(names[k]); } }
+      uniq.sort(function(a, b){ return a.localeCompare(b, 'cs'); });
+      var list = uniq.map(function(n){ return esc(n); }).join(', ');
+      el.innerHTML = '<strong>Sledovaná hnízda a lokality:</strong> ' + list + '.';
     }
 
     function renderTexts() {
