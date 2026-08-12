@@ -1,7 +1,7 @@
 {
   "settings": {
-    "bannerText": "🐣 Sledujte čapí hnízda živě – hnízdní sezóna 2026 se chýlí ke konci!\nPro jistotu videa aktivujte postupně, ať si YT nemyslí, že jste robot ;)\nPředem děkuji za kontrolu a korekci jmen čápů na hnízdech.",
-    "noteText": "Poděkování na rádiu Blaník – <a href=\"https://youtu.be/xqBy-05snaM\" target=\"_blank\" rel=\"noopener\" style=\"color: var(--blue); text-decoration: underline;\">díky kluci</a> ;)",
+    "bannerText": "🐣 Sledujte čapí hnízda živě – hnízdní sezóna 2026 se chýlí ke konci a většina čápů migruje na jih.\nPřehled hnízd zůstane, ale v některých případech bude vypnutý (podzim, zima).",
+    "noteText": "Poděkování na rádiu Blaník – <a href=\"https://youtu.be/xqBy-05snaM\" target=\"_blank\" rel=\"noopener\" style=\"color: var(--blue); text-decoration: underline;\">díky kluci</a> ;)\nA předem děkuji za náměty na další hnízda a kontrolu a korekci jmen čápů.",
     "footerText": "Projekt <strong>Čapí hnízda online</strong> · Sezóna 2026\nVytvořila <span class=\"footer-author\"><a href=\"https://www.instagram.com/tojekajinamamka/\">@tojekajinamamka</a></span>\nVidea jsou přehrávána prostřednictvím veřejného přehrávače YouTube.\nTento web není spojen se společností YouTube ani Google."
   },
   "youtube": [
@@ -14,7 +14,7 @@
     {
       "id": "ABJTbc2tOc4",
       "name": "Bohuslavice",
-      "pair": "Bohunka a Bohdan",
+      "pair": "Bohunka (a Bohdan 2022-2026)",
       "channelId": "UCKBI6TjMyNmDuuJpXeDL-bg"
     },
     {
