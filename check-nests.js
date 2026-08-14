@@ -89,6 +89,22 @@ async function ytSearchByName(name) {
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// Zopakuje volání až 3× při dočasném výpadku sítě (ne při chybě klíče – tu vrátí hned).
+async function fetchWithRetry(url, tries = 3) {
+  for (let attempt = 1; attempt <= tries; attempt++) {
+    try {
+      const resp = await fetch(url);
+      const json = await resp.json();
+      return json;
+    } catch (e) {
+      console.error(`  Síťová chyba (pokus ${attempt}/${tries}):`, e.message);
+      if (attempt < tries) await sleep(2000 * attempt);
+      else return { error: { message: 'Síť nedostupná po ' + tries + ' pokusech', errors: [{ reason: 'networkError' }] } };
+    }
+  }
+}
+
+
 async function main() {
   const data = JSON.parse(fs.readFileSync('nests.json', 'utf8'));
   const nests = data.youtube || [];
@@ -99,8 +115,14 @@ async function main() {
   for (let i = 0; i < nests.length; i += 50) {
     const ids = nests.slice(i, i + 50).map(n => n.id).join(',');
     const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,status,liveStreamingDetails&id=${ids}&key=${YT_API_KEY}`;
-    const resp = await fetch(url); const json = await resp.json();
-    if (json.error) { console.error('YouTube API chyba:', json.error.message); process.exit(1); }
+    const json = await fetchWithRetry(url);
+    if (json.error) {
+      console.error('YouTube API chyba:', json.error.message);
+      // Chyba klíče/oprávnění = trvalá, nemá smysl pokračovat. Kvóta/výpadek = dočasné, končíme jemně.
+      const reason = (json.error.errors && json.error.errors[0] && json.error.errors[0].reason) || '';
+      console.error('Přerušuji běh, zkusí se to při další kontrole. Reason:', reason || 'neznámý');
+      process.exit(1);
+    }
     if (json.items) json.items.forEach(item => { results[item.id] = item; });
   }
 
