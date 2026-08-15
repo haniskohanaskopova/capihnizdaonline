@@ -1,5 +1,6 @@
 {
   "flags": {
+    "Albrechtice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Křenovice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Křemže": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Okříšky u Třebíče": "kanál nevysílá živě (mimo sezónu / jen záznam)",
@@ -9,5 +10,5 @@
     "Žirec u Dvora Králové n. L.": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-08-14T07:04:55.162Z"
+  "updated": "2026-08-15T05:26:36.741Z"
 }
