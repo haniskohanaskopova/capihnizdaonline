@@ -1,6 +1,5 @@
 {
   "flags": {
-    "Rudník": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Nové Mlýny": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Frýdlant": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Třebíč": "kanál nevysílá živě (mimo sezónu / jen záznam)",
@@ -25,5 +24,5 @@
     "Supíkovice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-09-29T11:11:17.335Z"
+  "updated": "2026-09-30T10:58:59.552Z"
 }
