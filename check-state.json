@@ -1,13 +1,11 @@
 {
   "flags": {
-    "Rudník": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Nové Mlýny": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Frýdlant": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Třebíč": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Příbor": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Libštát": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Brandýs nad Orlicí": "kanál nevysílá živě (mimo sezónu / jen záznam)",
-    "Osík": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Jaroměř": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Albrechtice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Letohrad": "kanál nevysílá živě (mimo sezónu / jen záznam)",
@@ -29,5 +27,5 @@
     "Supíkovice": "kanál nevysílá živě (mimo sezónu / jen záznam)",
     "Lípa u Havlíčkova Brodu": "video smazáno, kotva chybí – ověř ručně"
   },
-  "updated": "2026-11-04T12:49:43.488Z"
+  "updated": "2026-11-05T12:58:12.893Z"
 }
